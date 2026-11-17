@@ -14,8 +14,8 @@ body:has(#heroes-dialog[open]){overflow:hidden}
 #heroes-dialog .hero-choice img{aspect-ratio:2/3;object-fit:contain;filter:brightness(.76) saturate(.7);width:100%;height:auto;margin:0}
 #heroes-dialog .hero-choice:hover,#heroes-dialog .hero-choice:focus-visible{border-color:#e8dec4;outline:1px solid #e8dec4;outline-offset:1px}
 #heroes-dialog .hero-choice:hover img,#heroes-dialog .hero-choice:focus-visible img,#heroes-dialog .hero-choice[aria-pressed=true] img{filter:none}
-#heroes-dialog .hero-choice[aria-pressed=true]{border-color:#80bd75;background:#345c36;box-shadow:0 0 0 1px #80bd75,inset 0 0 18px #82db6f66}
-#heroes-dialog .hero-choice[aria-pressed=true] img{background:#67aa5133}
+#heroes-dialog .hero-choice[aria-pressed=true]{border-color:#80bd75;background:#232822;box-shadow:0 0 0 1px #80bd75}
+#heroes-dialog .hero-choice[aria-pressed=true] img{background:transparent}
 #heroes-dialog .hero-choice:disabled{opacity:.55}
 #heroes-dialog .hero-choice[aria-pressed=true]::after{bottom:4px;right:3px;border-radius:0;z-index:1}
 .selection-controls{margin-top:14px}
@@ -36,3 +36,16 @@ body:has(#heroes-dialog[open]){overflow:hidden}
 @media(min-width:1500px){#heroes-form{width:44%;padding-top:5vh}.selection-heading{margin-bottom:4vh}#heroes-dialog #heroes-grid{gap:8px}}
 @media(max-width:1000px){#heroes-form{width:60%;padding-left:24px}.hero-showcase{left:48%;opacity:.8}.hero-title-block{bottom:8%;right:5%}#hero-preview-name{font-size:7vw}}
 @media(max-width:650px){#heroes-form{width:100%;padding:26px 16px 30px}.selection-heading{margin-bottom:24px}.selection-backdrop{position:fixed;opacity:.45}.hero-showcase{display:none}#heroes-dialog::before{position:fixed;background:#0d1515bb}#heroes-title{font-size:32px}#heroes-dialog #heroes-grid{grid-template-columns:repeat(9,minmax(0,1fr));gap:3px}#heroes-dialog .hero-choice{border-width:1px}#heroes-dialog .hero-choice[aria-pressed=true]::after{font-size:12px;min-width:14px;height:17px;line-height:17px;bottom:1px;right:1px}.selection-controls{margin-top:22px}.selection-hint{letter-spacing:0;font-size:9px}#heroes-dialog .primary{padding:12px 15px}.hero-choice img{min-width:0}}
+/* Selected portraits lean clockwise; priority chevrons stack at the left. */
+#heroes-dialog .hero-choice{transition:transform .15s ease,border-color .12s,filter .12s}
+#heroes-dialog .hero-choice[aria-pressed=true]{transform:rotate(4deg);z-index:2;border-color:#69ffad;box-shadow:0 0 0 1px #69ffad,0 4px 10px #0008}
+#heroes-dialog .hero-choice[aria-pressed=true]::after{content:none;left:4px;right:auto;bottom:4px;width:18px;min-width:0;height:12px;background:#62ff9e;color:transparent;border-radius:0;line-height:0;font-size:0;filter:drop-shadow(0 1px 2px #000);clip-path:polygon(50% 0,100% 60%,100% 100%,50% 40%,0 100%,0 60%)}
+#heroes-dialog .hero-choice[aria-pressed=true][data-priority='1']::after{content:'';background:#62ff9e}
+#heroes-dialog .hero-choice[aria-pressed=true][data-priority='2']::after{content:'';height:25px;background:#62ff9e;clip-path:polygon(50% 0,100% 28%,100% 46%,50% 18%,0 46%,0 28%,50% 0,50% 54%,100% 82%,100% 100%,50% 72%,0 100%,0 82%,50% 54%)}
+@media(prefers-reduced-motion:reduce){#heroes-dialog .hero-choice{transition:none}}
+@media(max-width:650px){#heroes-dialog .hero-choice[aria-pressed=true]::after{left:2px;bottom:2px;width:12px;min-width:0;height:8px}#heroes-dialog .hero-choice[aria-pressed=true][data-priority='2']::after{height:17px}}
+/* Filled priority triangles with a crisp black outline. */
+#heroes-dialog .hero-choice[aria-pressed=true]::after{clip-path:none;filter:none;width:20px;height:16px;background:none}
+#heroes-dialog .hero-choice[aria-pressed=true][data-priority='1']::after{background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16'%3E%3Cpath d='M10 2 L18 14 H2 Z' fill='%2362ff9e' stroke='%23000000' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+#heroes-dialog .hero-choice[aria-pressed=true][data-priority='2']::after{height:30px;clip-path:none;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 30'%3E%3Cpath d='M10 2 L18 14 H2 Z M10 16 L18 28 H2 Z' fill='%2362ff9e' stroke='%23000000' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+@media(max-width:650px){#heroes-dialog .hero-choice[aria-pressed=true]::after{width:14px;height:12px}#heroes-dialog .hero-choice[aria-pressed=true][data-priority='2']::after{height:22px}}
