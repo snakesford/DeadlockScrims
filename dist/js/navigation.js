@@ -1,11 +1,3 @@
-const queueKey='roster-queue-v1';
-let queue=[];
-try { const stored=JSON.parse(localStorage.getItem(queueKey)||'[]'); if(Array.isArray(stored))queue=[...new Set(stored.filter(id=>typeof id==='string'))]; } catch { document.querySelector('#queue-status').textContent='Saved queue could not be loaded.'; }
-function saveQueue(message){
-  try { localStorage.setItem(queueKey,JSON.stringify(queue)); document.querySelector('#queue-status').textContent=message; }
-  catch { document.querySelector('#queue-status').textContent='Queue changes could not be saved in this browser.'; }
-  renderQueue();
-}
 function favoriteHeroes(person){
   const values=Array.isArray(person.favoriteHeroes)?person.favoriteHeroes:[person.favoriteCharacter];
   const seen=new Set();
@@ -82,26 +74,6 @@ document.querySelector('#heroes-form').onsubmit=event=>{
   if(heroesSaveCallback){heroesSaveCallback([...selectedHeroes],Object.fromEntries(selectedHeroes.map(name=>[name,heroPriorities[name]||0])));heroesDialog.close();return;}
   heroesDialog.close();
 };
-function renderQueue(){
-  queue=queue.filter(id=>names.some(person=>person.id===id));
-  const select=document.querySelector('#queue-player');select.replaceChildren();
-  const available=names.filter(person=>!queue.includes(person.id));
-  const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent=available.length?'Choose a player…':names.length?'All players are queued':'Add names in Skill Levels first';select.append(placeholder);
-  for(const person of available){const option=document.createElement('option');option.value=person.id;option.textContent=person.name;select.append(option);}
-  select.disabled=!available.length;document.querySelector('#queue-add').disabled=!available.length;
-  document.querySelector('#queue-count').textContent=`${queue.length} player${queue.length===1?'':'s'}`;
-  const list=document.querySelector('#queue-list');list.replaceChildren();
-  if(!queue.length){const empty=document.createElement('li');empty.className='queue-empty';empty.textContent='The queue is empty. Add a player to get started.';list.append(empty);}
-  queue.forEach((id,index)=>{
-    const person=names.find(person=>person.id===id);const row=document.createElement('li');row.className='queue-row';
-    const position=document.createElement('span');position.className='queue-position';position.textContent=String(index+1).padStart(2,'0');
-    const label=document.createElement('span');label.className='queue-name';label.textContent=person.name;
-    const badge=document.createElement('span');badge.className='queue-tier';badge.textContent=tiers.find(t=>t.id===person.tier).name;
-    const remove=document.createElement('button');remove.type='button';remove.className='queue-remove';remove.textContent='Remove';remove.setAttribute('aria-label',`Remove ${person.name} from queue`);remove.onclick=()=>{queue=queue.filter(item=>item!==id);saveQueue(`${person.name} removed from queue.`);};
-    row.append(position,label,badge,remove);list.append(row);
-  });
-}
-document.querySelector('#queue-form').onsubmit=event=>{event.preventDefault();const id=document.querySelector('#queue-player').value;if(names.some(person=>person.id===id)&&!queue.includes(id)){queue.push(id);saveQueue('Player added to queue.');}};
 let skillPageAvailable=false;
 window.addEventListener('roster:sync',event=>{
   const available=!!event.detail?.joined;
@@ -110,12 +82,12 @@ window.addEventListener('roster:sync',event=>{
   showPage();
 });
 function showPage(){
-  const requested=location.hash.slice(1);let page=['skills','queue','match','account'].includes(requested)?requested:'match';
+  const requested=location.hash.slice(1);let page=['skills','match','account'].includes(requested)?requested:'match';
   document.querySelector('[data-page="skills"]').hidden=!skillPageAvailable;
   if(page==='skills'&&!skillPageAvailable){page='match';const url=new URL(location.href);url.hash='match';history.replaceState(null,'',url);}
-  for(const name of ['skills','queue','match','account'])document.querySelector(`#${name}-page`).hidden=name!==page;
+  for(const name of ['skills','match','account'])document.querySelector(`#${name}-page`).hidden=name!==page;
   document.querySelectorAll('.bottom-nav a').forEach(link=>{if(link.dataset.page===page)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
-  if(page==='queue')renderQueue();if(page==='account')renderAccount();
-  document.title=`Roster — ${page==='skills'?'Skill Levels':page==='match'?'Match':page==='account'?'Account':'Queue'}`;
+  if(page==='account')renderAccount();
+  document.title=`Roster — ${page==='skills'?'Skill Levels':page==='account'?'Account':'Match'}`;
 }
 window.addEventListener('hashchange',showPage);showPage();
