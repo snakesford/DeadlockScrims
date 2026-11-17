@@ -104,3 +104,7 @@ Joining players appear in **Skill Levels → Unsorted** automatically. Players c
 The host can use **Close match** to end a lobby for everyone. Closed matches reject further joins and edits; start a new match to play again.
 
 Every joined player can **Leave match**, freeing their slot and hero. The host transfers to the remaining player with the lowest slot number when leaving; the last departure closes the match. Players can rejoin an open match using its invite link.
+
+The **Account** tab saves a display name and up to three favorite heroes with priorities on this device. The saved name prefills match creation/joining and saving it updates your name in an active lobby. Account favorites are separate from the hero you select for a match.
+
+**Skill Levels** is available only while you are a member of an open match. Leaving, being booted, or closing the match hides the tab and redirects an open skill board to Match. Live total and per-tier player counts appear in Match instead of Stats.

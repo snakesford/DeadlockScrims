@@ -50,6 +50,24 @@ async function updateMatch(transform) {
 function updatePlayer(target, patch) {
   return updateMatch(value => changePlayer(value, uid, target, patch));
 }
+function renderMatchCounts() {
+  const container = $('match-counts'); container.replaceChildren();
+  container.hidden = !current || !!current.closed;
+  if (container.hidden) return;
+  const players = Object.values(current.players || {});
+  for (const [tier, label, color] of [
+    ['all', 'Total players', '#edf0e6'], ['high', 'High', '#f8e8a0'],
+    ['mid', 'Mid', '#dcd9f7'], ['newer', 'Newer', '#cde6fa'], ['unsorted', 'Unsorted', '#f1f3eb']
+  ]) {
+    const count = tier === 'all' ? players.length : players.filter(player => (player.tier || 'unsorted') === tier).length;
+    const card = document.createElement('section'); card.className = 'stat-card';
+    card.style.setProperty('--tier-color', color);
+    const title = document.createElement('h2'); title.textContent = label;
+    const number = document.createElement('strong'); number.textContent = count;
+    const caption = document.createElement('span'); caption.textContent = tier === 'all' ? 'In this match' : `${players.length ? Math.round(count / players.length * 100) : 0}% of the lobby`;
+    card.append(title, number, caption); container.append(card);
+  }
+}
 function renderMatch() {
   controls();
   $('match-close').hidden = !current || current.owner !== uid || !!current.closed;
@@ -60,9 +78,11 @@ function renderMatch() {
   window.dispatchEvent(new CustomEvent('roster:sync', {detail: current && !current.closed ? {
     players: Object.entries(current.players || {}).map(([id, player]) => ({id, name: player.name, tier: player.tier || 'unsorted'})),
     connected,
+    joined: !!current.players?.[uid],
     canEdit: id => connected && !busy && !!current?.players?.[uid] && (id === uid || current.owner === uid),
     update: updatePlayer
   } : null}));
+  renderMatchCounts();
   $('match-title').textContent = current?.name || 'MATCH LOBBY';
   const list = $('match-players'); list.replaceChildren();
   $('match-details').textContent = current ? `Match ${matchId} · ${current.allowDuplicates ? 'Duplicate heroes allowed' : 'Unique heroes only'}${current.owner === uid ? ' · You are the administrator' : ''}` : '';
@@ -114,6 +134,11 @@ function renderMatch() {
     list.append(card);
   }
 }
+window.addEventListener('account:name-changed', async event => {
+  if (!current?.players?.[uid] || current.closed) return;
+  const saved = await updatePlayer(uid, {name: event.detail.name});
+  if (!saved) $('account-status').textContent = 'Name saved on this device. The lobby name could not be updated; reconnect and save again.';
+});
 $('match-leave').onclick = async () => {
   const left = await updateMatch(value => leaveMatch(value, uid));
   if (!left) return;

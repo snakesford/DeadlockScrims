@@ -45,7 +45,9 @@ function updateHeroSelection(){
     remove.onclick=()=>{selectedHeroes=selectedHeroes.filter(hero=>hero!==name);delete heroPriorities[name];updateHeroSelection();};selected.append(remove);
   }
 }
-function editHeroes(person){
+let heroesSaveCallback=null;
+function editHeroes(person,onSave=null){
+  heroesSaveCallback=onSave;
   heroesPlayerId=person.id;
   selectedHeroes=favoriteHeroes(person).map(name=>heroCatalog.find(hero=>hero.name.toLowerCase()===name.toLowerCase())?.name||name);
   heroPriorities=Object.fromEntries(selectedHeroes.map(name=>[name,Math.max(0,Math.min(2,Number(person.favoriteHeroPriorities?.[name])||0))]));
@@ -78,7 +80,9 @@ function editHeroes(person){
 document.querySelector('#heroes-close').onclick=()=>heroesDialog.close();
 document.querySelector('#heroes-cancel').onclick=()=>heroesDialog.close();
 document.querySelector('#heroes-form').onsubmit=event=>{
-  event.preventDefault();const person=names.find(person=>person.id===heroesPlayerId);if(!person){heroesDialog.close();return;}
+  event.preventDefault();
+  if(heroesSaveCallback){heroesSaveCallback([...selectedHeroes],Object.fromEntries(selectedHeroes.map(name=>[name,heroPriorities[name]||0])));heroesDialog.close();return;}
+  const person=names.find(person=>person.id===heroesPlayerId);if(!person){heroesDialog.close();return;}
   person.favoriteHeroes=[...selectedHeroes];
   person.favoriteHeroPriorities=Object.fromEntries(selectedHeroes.map(name=>[name,heroPriorities[name]||0]));
   delete person.favoriteCharacter;
@@ -86,18 +90,9 @@ document.querySelector('#heroes-form').onsubmit=event=>{
   document.querySelector('#stats-status').textContent=storageAvailable?`Favorites saved for ${person.name}.`:'Browser storage is unavailable. These favorites will last only until you close this page.';
 };
 function renderStats(){
-  const cards=document.querySelector('#stats-cards');cards.replaceChildren();
-  for(const tier of [{id:'all',name:'Total players',tint:'#edf0e6'},...tiers]){
-    const count=tier.id==='all'?names.length:names.filter(person=>person.tier===tier.id).length;
-    const card=document.createElement('section');card.className='stat-card';card.dataset.tier=tier.id;card.style.setProperty('--tier-color',tier.tint);
-    const title=document.createElement('h2');title.textContent=tier.name;
-    const number=document.createElement('strong');number.textContent=count;
-    const caption=document.createElement('span');caption.textContent=tier.id==='all'?'On your roster':`${names.length?Math.round(count/names.length*100):0}% of your roster`;
-    card.append(title,number,caption);cards.append(card);
-  }
   const players=document.querySelector('#player-stats');players.replaceChildren();
   if(!names.length){
-    const empty=document.createElement('p');empty.className='queue-empty';empty.textContent='Add players in Skill Levels to track their wins and favorite characters.';players.append(empty);
+    const empty=document.createElement('p');empty.className='queue-empty';empty.textContent='No saved player records on this device. Your current lobby roster and player counts are in Match.';players.append(empty);
   }
   for(const person of names){
     const form=document.createElement('section');form.className='player-stat-card';form.style.setProperty('--tier-color',tiers.find(t=>t.id===person.tier).tint);
@@ -168,11 +163,20 @@ function renderQueue(){
   });
 }
 document.querySelector('#queue-form').onsubmit=event=>{event.preventDefault();const id=document.querySelector('#queue-player').value;if(names.some(person=>person.id===id)&&!queue.includes(id)){queue.push(id);saveQueue('Player added to queue.');}};
+let skillPageAvailable=false;
+window.addEventListener('roster:sync',event=>{
+  const available=!!event.detail?.joined;
+  if(available===skillPageAvailable)return;
+  skillPageAvailable=available;
+  showPage();
+});
 function showPage(){
-  const requested=location.hash.slice(1);const page=['skills','stats','queue','match'].includes(requested)?requested:'skills';
-  for(const name of ['skills','stats','queue','match'])document.querySelector(`#${name}-page`).hidden=name!==page;
+  const requested=location.hash.slice(1);let page=['skills','stats','queue','match','account'].includes(requested)?requested:'match';
+  document.querySelector('[data-page="skills"]').hidden=!skillPageAvailable;
+  if(page==='skills'&&!skillPageAvailable){page='match';const url=new URL(location.href);url.hash='match';history.replaceState(null,'',url);}
+  for(const name of ['skills','stats','queue','match','account'])document.querySelector(`#${name}-page`).hidden=name!==page;
   document.querySelectorAll('.bottom-nav a').forEach(link=>{if(link.dataset.page===page)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
-  if(page==='stats')renderStats();if(page==='queue')renderQueue();
-  document.title=`Roster — ${page==='skills'?'Skill Levels':page==='stats'?'Stats':page==='match'?'Match':'Queue'}`;
+  if(page==='stats')renderStats();if(page==='queue')renderQueue();if(page==='account')renderAccount();
+  document.title=`Roster — ${page==='skills'?'Skill Levels':page==='stats'?'Stats':page==='match'?'Match':page==='account'?'Account':'Queue'}`;
 }
 window.addEventListener('hashchange',showPage);showPage();

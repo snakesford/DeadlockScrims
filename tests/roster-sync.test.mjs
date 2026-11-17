@@ -52,11 +52,15 @@ test('multiplayer sync works with the roster script in a separate scope', () => 
   vm.runInContext("current.players={guest:{name:'Guest',tier:'mid',hero:'',team:'unassigned',ready:false}}; renderMatch()",context);
   let rank=element('#match-players').children[0].children[0].children[1];
   assert.equal(rank.value,'mid');
+  assert.equal(element('#match-counts').children[0].children[1].textContent,1);
+  assert.equal(element('#match-counts').children[2].children[1].textContent,1);
   assert.equal(rank.disabled,false);
   vm.runInContext("updatePlayer=(id,patch)=>{current.players[id]={...current.players[id],...patch};renderMatch();}",context);
   rank.value='high'; rank.onchange();
   rank=element('#match-players').children[0].children[0].children[1];
   assert.equal(rank.value,'high');
+  assert.equal(element('#match-counts').children[1].children[1].textContent,1);
+  assert.equal(element('#match-counts').children[2].children[1].textContent,0);
   const high=element('#board').children.find(section=>section.className==='tier-row high');
   assert.equal(high.body.children[0].children[0].textContent,'Guest');
   vm.runInContext("uid='guest'; renderMatch()",context);
@@ -76,4 +80,35 @@ test('multiplayer sync works with the roster script in a separate scope', () => 
   vm.runInContext('current=null; renderMatch()',context);
   assert.equal(element('#add-form').closest().hidden,false);
   assert.equal(element('#total').textContent,1);
+});
+
+test('Skill Levels requires membership and redirects after leaving or closing', () => {
+ const elements=new Map();
+ const element=id=>{if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
+ const listeners=new Map();
+ const location={href:'https://example.test/#skills',hash:'#skills'};
+ const context=vm.createContext({
+   document:{querySelector:element,querySelectorAll:()=>[]},
+   localStorage:{getItem:()=>null},URL,location,
+   history:{replaceState:(state,title,url)=>{location.href=String(url);location.hash=new URL(url).hash;}},
+   window:{addEventListener:(name,fn)=>listeners.set(name,fn)},
+ });
+ vm.runInContext(readFileSync(new URL('../dist/js/navigation.js',import.meta.url),'utf8'),context);
+ assert.equal(element('[data-page="skills"]').hidden,true);
+ assert.equal(element('#match-page').hidden,false);
+ assert.equal(location.hash,'#match');
+ listeners.get('roster:sync')({detail:{joined:false}});
+ assert.equal(element('[data-page="skills"]').hidden,true);
+ listeners.get('roster:sync')({detail:{joined:true}});
+ assert.equal(element('[data-page="skills"]').hidden,false);
+ location.hash='#skills';listeners.get('hashchange')();
+ assert.equal(element('#skills-page').hidden,false);
+ listeners.get('roster:sync')({detail:{joined:false}});
+ assert.equal(element('#skills-page').hidden,true);
+ assert.equal(element('#match-page').hidden,false);
+ listeners.get('roster:sync')({detail:{joined:true}});
+ location.hash='#skills';listeners.get('hashchange')();
+ listeners.get('roster:sync')({detail:null});
+ assert.equal(element('[data-page="skills"]').hidden,true);
+ assert.equal(element('#match-page').hidden,false);
 });
