@@ -79,7 +79,7 @@ function renderMatchTeams() {
   container.replaceChildren();
   container.hidden = !current || !!current.closed;
   if (container.hidden) return;
-  for (const [team, name] of [['amber', 'Archmother'], ['sapphire', 'Hidden King']]) {
+  for (const [team, name] of [['sapphire', 'Archmother'], ['amber', 'Hidden King']]) {
     const panel = document.createElement('section'); panel.className = `match-team match-team-${team}`;
     const players = Object.values(current.players || {}).filter(player => player.team === team)
       .sort((a, b) => Number(a.slot) - Number(b.slot));
@@ -102,7 +102,7 @@ function renderMatchTeams() {
         const portrait = document.createElement('img'); portrait.src = hero.image;
         portrait.alt = hero.name; portrait.loading = 'lazy'; card.append(portrait);
         const priority = document.createElement('span'); priority.className = 'match-team-priority';
-        priority.textContent = '▲'.repeat(top.priority || 0);
+        priority.textContent = Array(top.priority || 0).fill('▲').join('\n');
         priority.setAttribute('aria-label', `Priority ${top.priority || 0}`);
         card.append(priority);
       }
@@ -178,7 +178,7 @@ function renderMatch() {
       if (hero) {
         const image = document.createElement('img'); image.src = hero.image; image.alt = hero.name; image.loading = 'lazy'; portrait.append(image);
       } else { const label = document.createElement('span'); label.textContent = entry.hero; portrait.append(label); }
-      const marker = document.createElement('span'); marker.className = 'stats-hero-priority'; marker.textContent = '▲'.repeat(entry.priority || 0);
+      const marker = document.createElement('span'); marker.className = 'stats-hero-priority'; marker.textContent = Array(entry.priority || 0).fill('▲').join('\n');
       marker.setAttribute('aria-label', `Priority ${entry.priority || 0}`); portrait.append(marker);
       const caption = document.createElement('span'); caption.className = 'stats-hero-caption'; caption.textContent = `Prio ${entry.priority || 0}`;
       item.append(portrait, caption); heroes.append(item);
@@ -195,7 +195,7 @@ function renderMatch() {
       }
       input.value = value; input.onchange = () => updatePlayer(id, {[field]: input.value}); wrapper.append(input); card.append(wrapper);
     }
-    select('Team', [['unassigned', 'Unassigned'], ['amber', 'Archmother'], ['sapphire', 'Hidden King']], player.team, 'team');
+    select('Team', [['unassigned', 'Unassigned'], ['sapphire', 'Archmother'], ['amber', 'Hidden King']], player.team, 'team');
     const ready = document.createElement('button'); ready.className = 'match-ready'; ready.textContent = player.ready ? '✓ Ready' : 'Not ready'; ready.disabled = !editable;
     ready.setAttribute('aria-pressed', String(player.ready)); ready.onclick = () => updatePlayer(id, {ready: !player.ready}); card.append(ready);
     if (current.owner === uid && id !== uid) {
