@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="css/hero-selection.css">
 <link rel="stylesheet" href="css/typography.css">
 <link rel="stylesheet" href="css/deadlock-theme.css">
-<link rel="stylesheet" href="css/multiplayer.css?v=team-rosters-8">
+<link rel="stylesheet" href="css/multiplayer.css?v=teams-title-1">
 <link rel="stylesheet" href="css/light-theme.css?v=1">
 </head>
 <body>
@@ -25,26 +25,28 @@
 <div id="match-counts" class="stats-grid" aria-label="Match player counts" hidden></div>
 <div class="match-setup">
 <section class="quick-add match-setup-card" aria-labelledby="player-setup-title">
-<p class="match-section-label">YOUR PROFILE</p>
-<h2 id="player-setup-title">Who’s playing?</h2>
-<p class="match-help" id="player-name-help">The name other players will see in the lobby.</p>
-<div class="match-input-group"><label for="match-name">Player name</label><input id="match-name" maxlength="60" placeholder="Enter your player name" autocomplete="nickname" aria-describedby="player-name-help"></div>
+<p class="match-section-label" id="player-setup-title">YOUR PROFILE</p>
+<div class="match-input-group"><label for="match-name">Player name</label><input id="match-name" maxlength="60" placeholder="Enter your player name" autocomplete="nickname"></div>
 <div class="match-card-footer"><button id="match-join" disabled>Join linked match</button><p class="match-help">Joining friends? Open their invite link, then join here.</p></div>
 </section>
 <section class="quick-add match-setup-card" aria-labelledby="lobby-setup-title">
-<p class="match-section-label">HOST A MATCH</p>
-<h2 id="lobby-setup-title">Create your lobby</h2>
-<p class="match-help" id="lobby-name-help">Give your match a name so friends can recognize it.</p>
-<div class="match-input-group"><label for="lobby-name">Lobby name <span>Optional</span></label><input id="lobby-name" maxlength="60" placeholder="e.g. Friday night scrims" autocomplete="off" aria-describedby="lobby-name-help"></div>
-<label class="match-checkbox"><input type="checkbox" id="match-duplicates"><span>Allow duplicate heroes</span></label>
+<p class="match-section-label" id="lobby-setup-title">HOST A MATCH</p>
+<div class="match-input-group"><label for="lobby-name">Lobby name <span>Optional</span></label><input id="lobby-name" maxlength="60" placeholder="e.g. Friday night scrims" autocomplete="off"></div>
 <div class="match-card-footer"><button id="match-create" class="primary" disabled>Create match</button><p class="match-help">Uses your player name. You’ll be the host.</p></div>
 </section>
 </div>
 <div id="match-share" class="quick-add" hidden><label for="match-link">Invite players</label><div class="fields"><input id="match-link" readonly><button id="match-copy">Copy link</button></div></div>
 <button id="match-leave" class="leave-match" type="button" hidden disabled>Leave match</button>
 <button id="match-close" class="close-match" type="button" hidden disabled>Close match</button>
-<p id="match-status" role="status" aria-live="polite">Connecting…</p><p id="match-details"></p><div id="match-players" class="player-stats-grid"></div>
+<p id="match-status" role="status" aria-live="polite">Connecting…</p><p id="match-details"></p>
+<section id="match-lobby" class="match-lobby" aria-labelledby="match-lobby-title" hidden>
+<div class="match-lobby-heading"><h2 id="match-lobby-title">Lobby</h2><p>Joined players</p></div>
+<div id="match-players" class="player-stats-grid"></div>
+</section>
+<section id="match-teams-section" aria-labelledby="match-teams-title" hidden>
+<div class="match-lobby-heading"><h2 id="match-teams-title">Teams</h2><p>Archmother &amp; Hidden King</p></div>
 <div id="match-teams" class="match-teams" aria-label="Team rosters" hidden></div>
+</section>
 </main>
 <main id="account-page" hidden>
 <div class="intro"><div><p class="eyebrow">YOUR PLAYER PROFILE</p><h1>ACCOUNT</h1><p class="subtitle">Your name. Your favorite heroes. Ready for your next match.</p></div></div>
@@ -78,5 +80,5 @@
 <script src="js/account.js?v=priority-order-1"></script>
 <script src="js/navigation.js?v=no-queue-1"></script>
 <script src="js/firebase-config.js"></script>
-<script type="module" src="js/multiplayer.js?v=team-rosters-7"></script>
+<script type="module" src="js/multiplayer.js?v=setup-cleanup-2"></script>
 </body></html>

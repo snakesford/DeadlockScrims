@@ -1,4 +1,9 @@
-#match-players .player-stat-card{display:flex;flex-direction:column;gap:16px}
+.match-lobby{margin-top:32px;padding-block:24px 32px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.match-lobby-heading{margin-bottom:24px;padding:clamp(20px,2.5vw,36px);background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px}
+.match-lobby-heading h2{margin:0;font-family:var(--heading);font-size:clamp(32px,3vw,44px);font-weight:400;letter-spacing:1px;color:var(--text)}
+.match-lobby-heading p{margin:10px 0 0;font-size:13px;line-height:1.5;color:var(--muted)}
+#match-players{grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:clamp(16px,2vw,28px)}
+#match-players .player-stat-card{display:flex;flex-direction:column;gap:20px;padding:clamp(16px,2vw,28px);border-radius:8px}
 #match-players label{display:flex;flex-direction:column;gap:8px}
 #match-players input,#match-players select{width:100%;min-width:0}
 #match-status,#match-details{overflow-wrap:anywhere}
@@ -79,7 +84,8 @@
 #match-counts .stat-card h2,#match-counts .stat-card strong,#match-counts .stat-card>span{color:#252b2b}
 
 #match-page{width:100%;max-width:none;padding-inline:clamp(16px,3vw,64px)}
-.match-teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(16px,2vw,32px);margin-top:28px}
+#match-teams-section{margin-top:32px}
+.match-teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(16px,2vw,32px)}
 .match-teams[hidden]{display:none}
 .match-team{min-width:0;padding:clamp(12px,1.5vw,28px);background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--gold);border-radius:8px}
 .match-team-sapphire{border-top-color:var(--mint)}

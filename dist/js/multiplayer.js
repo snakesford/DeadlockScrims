@@ -78,6 +78,7 @@ function renderMatchTeams() {
   const container = $('match-teams');
   container.replaceChildren();
   container.hidden = !current || !!current.closed;
+  $('match-teams-section').hidden = container.hidden;
   if (container.hidden) return;
   for (const [team, name] of [['sapphire', 'Archmother'], ['amber', 'Hidden King']]) {
     const panel = document.createElement('section'); panel.className = `match-team match-team-${team}`;
@@ -115,6 +116,7 @@ function renderMatchTeams() {
 }
 function renderMatch() {
   controls();
+  $('match-lobby').hidden = !current || !!current.closed;
   $('match-close').hidden = !current || current.owner !== uid || !!current.closed;
   $('match-close').disabled = !connected || busy;
   $('match-leave').hidden = !current?.players?.[uid] || !!current?.closed;
@@ -180,8 +182,7 @@ function renderMatch() {
       } else { const label = document.createElement('span'); label.textContent = entry.hero; portrait.append(label); }
       const marker = document.createElement('span'); marker.className = 'stats-hero-priority'; marker.textContent = Array(entry.priority || 0).fill('▲').join('\n');
       marker.setAttribute('aria-label', `Priority ${entry.priority || 0}`); portrait.append(marker);
-      const caption = document.createElement('span'); caption.className = 'stats-hero-caption'; caption.textContent = `Prio ${entry.priority || 0}`;
-      item.append(portrait, caption); heroes.append(item);
+      item.append(portrait); heroes.append(item);
     }
     if (!heroes.children.length) { const empty = document.createElement('li'); empty.className = 'heroes-empty'; empty.textContent = 'No heroes selected'; heroes.append(empty); }
     rosterSection.append(rosterLabel, heroes); fields.append(winsSection, rosterSection); card.append(fields);
@@ -196,8 +197,6 @@ function renderMatch() {
       input.value = value; input.onchange = () => updatePlayer(id, {[field]: input.value}); wrapper.append(input); card.append(wrapper);
     }
     select('Team', [['unassigned', 'Unassigned'], ['sapphire', 'Archmother'], ['amber', 'Hidden King']], player.team, 'team');
-    const ready = document.createElement('button'); ready.className = 'match-ready'; ready.textContent = player.ready ? '✓ Ready' : 'Not ready'; ready.disabled = !editable;
-    ready.setAttribute('aria-pressed', String(player.ready)); ready.onclick = () => updatePlayer(id, {ready: !player.ready}); card.append(ready);
     if (current.owner === uid && id !== uid) {
       const boot = document.createElement('button'); boot.type = 'button';
       boot.className = 'boot-player'; boot.textContent = 'Boot';
@@ -234,7 +233,7 @@ $('match-create').onclick = () => action(async () => {
   const lobbyName = $('lobby-name').value.trim();
   if (lobbyName.length > 60) throw new Error('Lobby name must be 60 characters or fewer.');
   const reference = sdk.push(sdk.ref(db, 'matches'));
-  await sdk.set(reference, {...(lobbyName ? {name: lobbyName} : {}), owner: uid, slots: {'0': uid}, allowDuplicates: $('match-duplicates').checked, players: {[uid]: newPlayer(name, '0', window.getAccountProfile?.() || {})}});
+  await sdk.set(reference, {...(lobbyName ? {name: lobbyName} : {}), owner: uid, slots: {'0': uid}, allowDuplicates: false, players: {[uid]: newPlayer(name, '0', window.getAccountProfile?.() || {})}});
   watch(reference.key);
 });
 $('match-join').onclick = () => action(async () => {
