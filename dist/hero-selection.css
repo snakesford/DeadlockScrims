@@ -11,7 +11,7 @@ body:has(#heroes-dialog[open]){overflow:hidden}
 #heroes-close{position:fixed;top:16px;right:20px;z-index:5;background:#151b19c9;border:1px solid #8b948571;color:#eee5d0;font-size:28px;width:42px;height:42px}
 #heroes-dialog #heroes-grid{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px;max-height:none;overflow:visible;margin:0;padding:3px;align-content:start}
 #heroes-dialog .hero-choice{border:2px solid #373c37;border-radius:0;background:#232822;box-shadow:0 3px 7px #0008;transition:border-color .12s,filter .12s;overflow:hidden;min-width:0}
-#heroes-dialog .hero-choice img{aspect-ratio:2/3;object-fit:contain;filter:brightness(.76) saturate(.7);width:100%;height:auto;margin:0}
+#heroes-dialog .hero-choice img{aspect-ratio:3/4;object-fit:contain;filter:brightness(.76) saturate(.7);width:100%;height:auto;margin:0}
 #heroes-dialog .hero-choice:hover,#heroes-dialog .hero-choice:focus-visible{border-color:#e8dec4;outline:1px solid #e8dec4;outline-offset:1px}
 #heroes-dialog .hero-choice:hover img,#heroes-dialog .hero-choice:focus-visible img,#heroes-dialog .hero-choice[aria-pressed=true] img{filter:none}
 #heroes-dialog .hero-choice[aria-pressed=true]{border-color:#80bd75;background:#232822;box-shadow:0 0 0 1px #80bd75}
