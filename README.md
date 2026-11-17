@@ -110,3 +110,5 @@ The **Account** tab saves a display name and up to three favorite heroes with pr
 **Skill Levels** is available only while you are a member of an open match. Leaving, being booted, or closing the match hides the tab and redirects an open skill board to Match. Live total and per-tier player counts appear in Match instead of Stats.
 
 Match cards display the player’s Account hero roster with priorities, match wins, name, skill level, team, match hero, and ready state. Favorites are copied on creation/join and Account hero changes sync to an active match. Wins start at zero for each new match membership and can be updated by the player or host.
+
+Use the header’s **Theme** selector for **System**, **Light**, or **Dark**. System follows device appearance by default; explicit choices persist on this device and synchronize across tabs. The light palette retains the typography, occult pattern, full tier-color count cards, and green ready states.

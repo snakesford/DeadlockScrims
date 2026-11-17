@@ -3,14 +3,16 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="A simple home for your tier list. Add names, sort your roster, and save as you go."><title>Roster — Tier List</title>
+<script src="js/theme.js?v=1"></script>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/hero-selection.css">
 <link rel="stylesheet" href="css/typography.css">
 <link rel="stylesheet" href="css/deadlock-theme.css">
 <link rel="stylesheet" href="css/multiplayer.css?v=filled-counts-1">
+<link rel="stylesheet" href="css/light-theme.css?v=1">
 </head>
 <body>
-<header><a class="brand" href="./"><span class="logo">▥</span> roster<span class="brand-dot">.</span></a><span class="header-note">A little order for your lineup.</span><span class="local"><i></i> Saved on this device</span></header>
+<header><a class="brand" href="./"><span class="logo">▥</span> roster<span class="brand-dot">.</span></a><span class="header-note">A little order for your lineup.</span><div class="theme-control"><label for="theme-select">Theme</label><select id="theme-select"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></div><span class="local"><i></i> Saved on this device</span></header>
 <main id="skills-page" hidden>
 <div class="intro"><div><p class="eyebrow">DEADLOCK / SKILL DIVISIONS</p><h1>BUILD YOUR LINEUP</h1><p class="subtitle">Every player has a place. Find theirs.</p></div><div class="total"><strong id="total">0</strong><span>PLAYERS ASSIGNED</span></div></div>
 <section class="quick-add" aria-label="Add a name"><form id="add-form"><label for="name">Add to the board</label><div class="fields"><input id="name" placeholder="Enter a name…" maxlength="60" required autocomplete="off"><select id="tier" aria-label="Choose a tier"><option value="unsorted">Unsorted</option><option value="high">High</option><option value="mid">Mid</option><option value="newer">Newer</option></select><button class="primary" type="submit"><span>＋</span> Add name</button></div></form></section>
