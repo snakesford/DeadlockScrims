@@ -4,6 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="A simple home for your tier list. Add names, sort your roster, and save as you go."><title>Roster — Tier List</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="hero-selection.css">
 </head>
 <body>
 <header><a class="brand" href="./"><span class="logo">▥</span> roster<span class="brand-dot">.</span></a><span class="header-note">A little order for your lineup.</span><span class="local"><i></i> Saved on this device</span></header>
@@ -34,12 +35,17 @@
 </nav>
 <dialog id="edit-dialog"><form id="edit-form"><div class="dialog-heading"><h2>Edit name</h2><button type="button" id="close" aria-label="Close">×</button></div><label for="edit-name">Name</label><input id="edit-name" maxlength="60" required><label for="edit-tier">Tier</label><select id="edit-tier"><option value="high">High</option><option value="mid">Mid</option><option value="newer">Newer</option><option value="unsorted">Unsorted</option></select><div class="dialog-actions"><button type="button" id="delete">Remove name</button><button class="primary">Save changes</button></div></form></dialog>
 <dialog id="heroes-dialog" aria-labelledby="heroes-title">
+<div class="selection-backdrop" aria-hidden="true"></div>
+<div class="hero-showcase" aria-hidden="true"><img id="hero-render" alt=""><div class="hero-title-block"><p>YOUR ROSTER</p><h3 id="hero-preview-name"></h3><span id="hero-preview-priority">AVAILABLE</span></div></div>
 <form id="heroes-form">
-<div class="dialog-heading"><h2 id="heroes-title">Select 3 heroes</h2><button type="button" id="heroes-close" aria-label="Close">×</button></div>
-<div id="heroes-selected" aria-label="Selected favorites"></div>
-<p id="heroes-selection-status" role="status" aria-live="polite"></p>
+<div class="selection-heading"><p>DEADLOCK</p><h2 id="heroes-title">SELECT 3 HEROES</h2><button type="button" id="heroes-close" aria-label="Close hero selector">×</button></div>
 <div id="heroes-grid" aria-label="Heroes, sorted alphabetically"></div>
-<div class="dialog-actions"><button type="button" id="heroes-cancel">Cancel</button><button class="primary">Save favorites</button></div>
+<div class="selection-controls">
+<p id="heroes-selection-status" role="status" aria-live="polite"></p>
+<div id="heroes-selected" aria-label="Selected favorites"></div>
+<p class="selection-hint">LEFT CLICK TO SELECT <span>·</span> RIGHT CLICK TO PRIORITIZE</p>
+<div class="dialog-actions"><button type="button" id="heroes-cancel"><kbd>ESC</kbd> BACK</button><button class="primary">SAVE ROSTER</button></div>
+</div>
 </form></dialog>
 <script src="app.js"></script>
 <script src="heroes.js"></script>

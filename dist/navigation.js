@@ -15,8 +15,21 @@ const heroesDialog=document.querySelector('#heroes-dialog');
 let heroesPlayerId=null;
 let selectedHeroes=[];
 let heroPriorities={};
+let previewHero=null;
+function previewSelectionHero(hero){
+  previewHero=hero;
+  document.querySelector("#hero-render").src=hero.render;
+  document.querySelector(".selection-backdrop").style.backgroundImage=`url("${hero.background}")`;
+  document.querySelector("#hero-preview-name").textContent=hero.name;
+  updatePreviewPriority();
+}
+function updatePreviewPriority(){
+  if(!previewHero)return;
+  document.querySelector("#hero-preview-priority").textContent=selectedHeroes.includes(previewHero.name)?priorityLabels[heroPriorities[previewHero.name]||0].toUpperCase():"AVAILABLE";
+}
 const priorityLabels=["Favorite","Medium priority","High priority"];
 function updateHeroSelection(){
+  updatePreviewPriority();
   document.querySelectorAll('.hero-choice').forEach(button=>{
     const selected=selectedHeroes.includes(button.dataset.hero);
     button.setAttribute('aria-pressed',String(selected));
@@ -42,7 +55,9 @@ function editHeroes(person){
     const button=document.createElement('button');button.type='button';button.className='hero-choice';button.dataset.hero=hero.name;button.setAttribute('aria-label',hero.name);
     const image=document.createElement('img');image.src=hero.image;image.alt='';image.loading='lazy';image.width=120;image.height=120;
     const label=document.createElement('span');label.textContent=hero.name;
+    button.onmouseenter=()=>previewSelectionHero(hero);button.onfocus=()=>previewSelectionHero(hero);
     button.append(image,label);button.onclick=()=>{
+      previewSelectionHero(hero);
       if(selectedHeroes.includes(hero.name)){selectedHeroes=selectedHeroes.filter(name=>name!==hero.name);delete heroPriorities[hero.name];}
       else if(selectedHeroes.length<3)selectedHeroes.push(hero.name);
       updateHeroSelection();
@@ -58,6 +73,7 @@ function editHeroes(person){
     button.onkeydown=event=>{if(event.key==='ArrowUp')raisePriority(event);};
     grid.append(button);
   }
+  previewSelectionHero(heroCatalog.find(hero=>hero.name===selectedHeroes[0])||heroCatalog.find(hero=>hero.name==='Billy')||heroCatalog[0]);
   updateHeroSelection();heroesDialog.showModal();
 }
 document.querySelector('#heroes-close').onclick=()=>heroesDialog.close();
