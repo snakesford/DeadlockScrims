@@ -122,7 +122,7 @@ function renderStats(){
     up.onclick=()=>changeWins(1);down.onclick=()=>changeWins(-1);updateCounter();
     counter.append(up,number,down);winsSection.append(winsLabel,counter);
     const characterSection=document.createElement('div');characterSection.className='character-stat';
-    const characterLabel=document.createElement('span');characterLabel.textContent='Favorite heroes';
+    const characterLabel=document.createElement('span');characterLabel.textContent='Roster';
     const favorites=favoriteHeroes(person);const list=document.createElement('ul');list.className='favorite-heroes';
     for(const name of favorites){
       const hero=heroCatalog.find(hero=>hero.name.toLowerCase()===name.toLowerCase());
@@ -142,8 +142,8 @@ function renderStats(){
       const caption=document.createElement('span');caption.className='stats-hero-caption';caption.textContent=`Prio ${priority}`;
       item.append(portrait,caption);list.append(item);
     }
-    if(!favorites.length){const empty=document.createElement('li');empty.className='heroes-empty';empty.textContent='No favorites yet';list.append(empty);}
-    const edit=document.createElement('button');edit.type='button';edit.className='edit-heroes';edit.textContent=favorites.length?'Edit favorites':'＋ Add favorites';edit.setAttribute('aria-label',`Edit favorite heroes for ${person.name}`);edit.onclick=()=>editHeroes(person);
+    if(!favorites.length){const empty=document.createElement('li');empty.className='heroes-empty';empty.textContent='No heroes yet';list.append(empty);}
+    const edit=document.createElement('button');edit.type='button';edit.className='edit-heroes';edit.textContent=favorites.length?'Edit roster':'＋ Add heroes';edit.setAttribute('aria-label',`Edit roster for ${person.name}`);edit.onclick=()=>editHeroes(person);
     characterSection.append(characterLabel,list,edit);fields.append(winsSection,characterSection);
     form.append(heading,fields);players.append(form);
   }
