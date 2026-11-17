@@ -46,6 +46,7 @@ async function updatePlayer(target, patch) {
   });
 }
 function renderMatch() {
+  $('match-title').textContent = current?.name || 'MATCH LOBBY';
   const list = $('match-players'); list.replaceChildren();
   $('match-details').textContent = current ? `Match ${matchId} · ${current.allowDuplicates ? 'Duplicate heroes allowed' : 'Unique heroes only'}${current.owner === uid ? ' · You are the administrator' : ''}` : '';
   for (const [id, player] of Object.entries(current?.players || {})) {
@@ -73,8 +74,10 @@ function renderMatch() {
 }
 $('match-create').onclick = () => action(async () => {
   const name = playerName();
+  const lobbyName = $('lobby-name').value.trim();
+  if (lobbyName.length > 60) throw new Error('Lobby name must be 60 characters or fewer.');
   const reference = sdk.push(sdk.ref(db, 'matches'));
-  await sdk.set(reference, {owner: uid, slots: {'0': uid}, allowDuplicates: $('match-duplicates').checked, players: {[uid]: newPlayer(name)}});
+  await sdk.set(reference, {...(lobbyName ? {name: lobbyName} : {}), owner: uid, slots: {'0': uid}, allowDuplicates: $('match-duplicates').checked, players: {[uid]: newPlayer(name)}});
   watch(reference.key);
 });
 $('match-join').onclick = () => action(async () => {

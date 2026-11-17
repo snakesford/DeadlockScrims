@@ -84,3 +84,17 @@ test('listeners receive remote changes and a fresh client restores saved selecti
    assert.equal((await get(ref(refreshed,path))).val().players.alice.hero,'Haze');
  } finally {unsubscribe?.();}
 });
+
+test('named lobbies validate names and preserve them through joins and player updates', async () => {
+ const namedPath='matches/namedlobbyabcdefghij';
+ const named={...initial(),name:'Friday night scrims'};
+ for (const name of ['', 'x'.repeat(61), 123]) {
+   await assertFails(set(ref(db('alice'),namedPath),{...named,name}));
+ }
+ await assertSucceeds(set(ref(db('alice'),namedPath),named));
+ const joined=joinMatch(named,'bob','Bob');
+ await assertSucceeds(set(ref(db('bob'),namedPath),joined));
+ await assertSucceeds(set(ref(db('bob'),namedPath),changePlayer(joined,'bob','bob',{ready:true})));
+ assert.equal((await get(ref(db('bob'),namedPath))).val().name,named.name);
+ await assertFails(set(ref(db('bob'),`${namedPath}/name`),'Changed name'));
+});

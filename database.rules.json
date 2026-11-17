@@ -10,6 +10,9 @@
         "owner": {
           ".validate": "newData.isString() && ((!data.exists() && newData.val() == auth.uid) || newData.val() == data.val())"
         },
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 60 && ((!data.parent().exists() && newData.parent().child('owner').val() == auth.uid) || newData.val() == data.val())"
+        },
         "allowDuplicates": {
           ".validate": "newData.isBoolean() && (!data.exists() || newData.val() == data.val())"
         },
