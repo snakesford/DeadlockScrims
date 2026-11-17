@@ -95,3 +95,5 @@ schema validation and malicious writes. For browser smoke testing, serve
 - Disconnect/reconnect; verify controls disable offline and current state returns.
 - Create another match and verify changes do not cross match IDs.
 - Check that local tier editing, favorites, wins and queue still work.
+
+The host can use the red **Boot** button to remove another player, freeing their slot and hero. Removed players can reopen the invite link and join again; booting does not ban them.

@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {changePlayer, newPlayer, joinMatch} from '../dist/js/match-model.mjs';
+import {changePlayer, newPlayer, joinMatch, bootPlayer} from '../dist/js/match-model.mjs';
 const fixture = () => ({owner: 'a', allowDuplicates: false, players: {a: newPlayer('Alice'), b: newPlayer('Bob')}});
 test('claims survive unrelated updates and reject a racing duplicate pick', () => {
   const first = changePlayer(fixture(), 'a', 'a', {hero: 'Abrams'});
@@ -32,4 +32,21 @@ test('joining is idempotent, allocates independent slots, and rejects full match
   assert.deepEqual(joinMatch(state,'b','New name'),state);
   for(let i=2;i<12;i++)state=joinMatch(state,'user'+i,'Player '+i);
   assert.throws(()=>joinMatch(state,'extra','Extra'),/full/);
+});
+
+test('booting releases the slot and hero, preserves other players, and permits rejoining', () => {
+ const initial={owner:'a',allowDuplicates:false,slots:{'0':'a'},players:{a:newPlayer('Alice')}};
+ const joined=joinMatch(initial,'b','Bob');
+ const picked=changePlayer(joined,'b','b',{hero:'Haze',ready:true});
+ assert.throws(()=>bootPlayer(picked,'b','a'),/host/);
+ assert.throws(()=>bootPlayer(picked,'a','a'),/host/);
+ const booted=bootPlayer(picked,'a','b');
+ assert.equal(booted.players.b,undefined);
+ assert.equal(booted.slots['1'],undefined);
+ assert.equal(booted.claims.Haze,undefined);
+ assert.deepEqual(booted.players.a,picked.players.a);
+ assert.equal(picked.players.b.hero,'Haze');
+ assert.throws(()=>changePlayer(booted,'b','b',{ready:true}),/Join/);
+ const rejoined=joinMatch(booted,'b','Bob');
+ assert.deepEqual(rejoined.players.b,newPlayer('Bob','1'));
 });

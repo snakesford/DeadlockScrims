@@ -1,4 +1,4 @@
-import {changePlayer, newPlayer, joinMatch} from './match-model.mjs';
+import {changePlayer, newPlayer, joinMatch, bootPlayer} from './match-model.mjs';
 const $ = id => document.getElementById(id);
 const message = text => { $('match-status').textContent = text; };
 let sdk, db, uid, matchId, current, connected = false, busy = false, unsubscribe;
@@ -28,22 +28,27 @@ function watch(id) {
   $('match-link').value = link.href;
   $('match-share').hidden = false;
   unsubscribe = sdk.onValue(sdk.ref(db, `matches/${id}`), snapshot => {
+    const wasJoined = !!current?.players?.[uid];
     current = snapshot.val(); renderMatch();
+    if (wasJoined && current && !current.players?.[uid]) message('The host removed you from the lobby. You can rejoin using the invite link.');
     if (!current) message('This match does not exist.');
   }, error => { current = null; renderMatch(); message(`Unable to load match: ${error.message}`); });
 }
-async function updatePlayer(target, patch) {
+async function updateMatch(transform) {
   await action(async () => {
     // Transactions retry against the newest complete match, including hero claims.
     let conflict;
     const result = await sdk.runTransaction(sdk.ref(db, `matches/${matchId}`), value => {
       if (!value) return value; // Firebase may initially supply an empty local cache.
-      try { return changePlayer(value, uid, target, patch); }
+      try { conflict = undefined; return transform(value); }
       catch (error) { conflict = error; return undefined; }
     }, {applyLocally: false});
     if (conflict) throw conflict;
     if (!result.committed || !result.snapshot.exists()) throw new Error('Match changed. Please try again.');
   });
+}
+function updatePlayer(target, patch) {
+  return updateMatch(value => changePlayer(value, uid, target, patch));
 }
 function renderMatch() {
   $('match-title').textContent = current?.name || 'MATCH LOBBY';
@@ -69,7 +74,16 @@ function renderMatch() {
     select('Match hero', [['', 'Choose a hero…'], ...heroCatalog.map(h => [h.name, h.name])], player.hero, 'hero');
     select('Team', [['unassigned', 'Unassigned'], ['amber', 'Amber'], ['sapphire', 'Sapphire']], player.team, 'team');
     const ready = document.createElement('button'); ready.textContent = player.ready ? '✓ Ready' : 'Not ready'; ready.disabled = !editable;
-    ready.setAttribute('aria-pressed', String(player.ready)); ready.onclick = () => updatePlayer(id, {ready: !player.ready}); card.append(ready); list.append(card);
+    ready.setAttribute('aria-pressed', String(player.ready)); ready.onclick = () => updatePlayer(id, {ready: !player.ready}); card.append(ready);
+    if (current.owner === uid && id !== uid) {
+      const boot = document.createElement('button'); boot.type = 'button';
+      boot.className = 'boot-player'; boot.textContent = 'Boot';
+      boot.setAttribute('aria-label', `Boot ${player.name} from lobby`);
+      boot.disabled = !connected || busy;
+      boot.onclick = () => updateMatch(value => bootPlayer(value, uid, id));
+      card.append(boot);
+    }
+    list.append(card);
   }
 }
 $('match-create').onclick = () => action(async () => {

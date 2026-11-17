@@ -3,7 +3,7 @@ import {before, after, beforeEach, test} from 'node:test';
 import assert from 'node:assert/strict';
 import {initializeTestEnvironment, assertFails, assertSucceeds} from '@firebase/rules-unit-testing';
 import {ref, set, get, runTransaction, update, remove, onValue} from 'firebase/database';
-import {changePlayer, newPlayer, joinMatch} from '../dist/js/match-model.mjs';
+import {changePlayer, newPlayer, joinMatch, bootPlayer} from '../dist/js/match-model.mjs';
 let env;
 const id = 'abcdefghijklmnopqrst';
 const path = `matches/${id}`;
@@ -97,4 +97,22 @@ test('named lobbies validate names and preserve them through joins and player up
  await assertSucceeds(set(ref(db('bob'),namedPath),changePlayer(joined,'bob','bob',{ready:true})));
  assert.equal((await get(ref(db('bob'),namedPath))).val().name,named.name);
  await assertFails(set(ref(db('bob'),`${namedPath}/name`),'Changed name'));
+});
+
+test('only host can boot; slot and hero are freed and the same player can rejoin', async () => {
+ const joined=(await get(ref(db('alice'),path))).val();
+ const picked=changePlayer(joined,'bob','bob',{hero:'Haze'});
+ await set(ref(db('bob'),path),picked);
+ const booted=bootPlayer(picked,'alice','bob');
+ await assertFails(set(ref(db('bob'),path),booted));
+ await assertFails(set(ref(db('eve'),path),booted));
+ await assertFails(update(ref(db('alice'),path),{'players/alice':null,'slots/0':null}));
+ await assertFails(remove(ref(db('alice'),`${path}/players/bob`)));
+ await assertSucceeds(set(ref(db('alice'),path),booted));
+ await assertFails(update(ref(db('bob'),`${path}/players/bob`),{ready:true}));
+ const released=changePlayer(booted,'alice','alice',{hero:'Haze'});
+ await assertSucceeds(set(ref(db('alice'),path),released));
+ const rejoined=joinMatch(released,'bob','Bob');
+ await assertSucceeds(set(ref(db('bob'),path),rejoined));
+ assert.equal((await get(ref(db('bob'),path))).val().players.bob.slot,'1');
 });

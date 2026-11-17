@@ -31,3 +31,16 @@ export function joinMatch(match, uid, name) {
   next.players[uid] = newPlayer(name, slot);
   return next;
 }
+
+export function bootPlayer(match, actor, target) {
+  if (!match || actor !== match.owner) throw new Error('Only the host can boot players.');
+  if (target === match.owner) throw new Error('The host cannot be booted.');
+  if (!match.players?.[target]) throw new Error('Player not found.');
+  const next = structuredClone(match);
+  delete next.slots[next.players[target].slot];
+  delete next.players[target];
+  for (const [hero, uid] of Object.entries(next.claims || {})) {
+    if (uid === target) delete next.claims[hero];
+  }
+  return next;
+}

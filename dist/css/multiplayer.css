@@ -8,3 +8,6 @@
 
 #match-page .lobby-name-field{margin-bottom:18px}
 #match-title{overflow-wrap:anywhere}
+
+#match-players .boot-player{background:#b42332;border-color:#d63c4c;color:#fff}
+#match-players .boot-player:hover:not(:disabled){background:#921c28;border-color:#ef5262}
