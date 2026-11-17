@@ -2,6 +2,8 @@ import {changePlayer, newPlayer, joinMatch, bootPlayer, closeMatch, leaveMatch, 
 const $ = id => document.getElementById(id);
 const message = text => { $('match-status').textContent = text; if (current) $('status').textContent = text; };
 let sdk, db, uid, matchId, current, connected = false, busy = false, unsubscribe;
+let matchLoading = false;
+const hasActiveMatch = () => matchLoading || (!!current?.players?.[uid] && !current.closed);
 let requestedId = new URL(location.href).searchParams.get('match');
 const validId = id => /^[A-Za-z0-9_-]{20,64}$/.test(id || '');
 function enteredMatchId() {
@@ -15,7 +17,8 @@ function enteredMatchId() {
 $('match-invite').value = validId(requestedId) ? location.href : '';
 $('match-invite').oninput = controls;
 function controls() {
-  $('match-create').disabled = !uid || !connected || busy;
+  $('match-create').disabled = !uid || !connected || busy || hasActiveMatch();
+  $('lobby-name').disabled = busy || hasActiveMatch();
   $('match-join').disabled = !uid || !connected || busy || !validId(enteredMatchId());
 }
 async function action(work) {
@@ -30,7 +33,7 @@ function playerName() {
   return validateName($('match-name').value);
 }
 function watch(id) {
-  unsubscribe?.(); current = null; matchId = id; requestedId = id; renderMatch();
+  unsubscribe?.(); matchLoading = true; current = null; matchId = id; requestedId = id; renderMatch();
   const link = new URL(location.href); link.searchParams.set('match', id); link.hash = 'match';
   history.replaceState(null, '', link); showPage();
   $('match-link').value = link.href;
@@ -39,7 +42,7 @@ function watch(id) {
   let profileLoaded = false;
   unsubscribe = sdk.onValue(sdk.ref(db, `matches/${id}`), snapshot => {
     const wasJoined = !!current?.players?.[uid];
-    current = snapshot.val(); renderMatch();
+    matchLoading = false; current = snapshot.val(); renderMatch();
     if (!profileLoaded && current?.players?.[uid] && !current.closed && connected && !busy) {
       profileLoaded = true;
       const roster = profileRoster(window.getAccountProfile?.() || {});
@@ -47,7 +50,7 @@ function watch(id) {
     }
     if (wasJoined && current && !current.players?.[uid]) message('The host removed you from the lobby. You can rejoin using the invite link.');
     if (!current) message('This match does not exist.');
-  }, error => { current = null; renderMatch(); message(`Unable to load match: ${error.message}`); });
+  }, error => { matchLoading = false; current = null; renderMatch(); message(`Unable to load match: ${error.message}`); });
 }
 async function updateMatch(transform) {
   return action(async () => {
@@ -240,12 +243,14 @@ $('match-leave').onclick = async () => {
 };
 $('match-close').onclick = () => updateMatch(value => closeMatch(value, uid));
 $('match-create').onclick = () => action(async () => {
+  if (hasActiveMatch()) throw new Error('Leave or close your current match before creating another.');
   const name = playerName();
   const lobbyName = validateName($('lobby-name').value, {optional: true});
   const reference = sdk.ref(db, `matches/${createMatchCode()}`);
   const match = {...(lobbyName ? {name: lobbyName} : {}), owner: uid, slots: {'0': uid}, allowDuplicates: false, players: {[uid]: newPlayer(name, '0', window.getAccountProfile?.() || {})}};
   const created = await sdk.runTransaction(reference, value => value === null ? match : undefined, {applyLocally: false});
   if (!created.committed) throw new Error('This code is already in use. Please create the match again.');
+  $('lobby-name').value = '';
   watch(reference.key);
 });
 $('match-join').onclick = () => action(async () => {

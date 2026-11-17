@@ -78,6 +78,8 @@ test('multiplayer sync works with the roster script in a separate scope', () => 
   const high=element('#board').children.find(section=>section.className==='tier-row high');
   assert.equal(high.body.children[0].children[0].textContent,'Guest');
   vm.runInContext("uid='guest'; renderMatch()",context);
+  assert.equal(element('#match-create').disabled,true);
+  assert.equal(element('#lobby-name').disabled,true);
   rank=element('#match-players').children[0].children[0].children[1];
   assert.equal(rank.textContent,'High');
   assert.equal(element('#match-leave').hidden,false);
@@ -85,6 +87,8 @@ test('multiplayer sync works with the roster script in a separate scope', () => 
   assert.equal(rank.onchange,undefined);
   assert.equal(element('#match-close').hidden,true);
   vm.runInContext("current.closed=true; renderMatch()",context);
+  assert.equal(element('#match-create').disabled,false);
+  assert.equal(element('#lobby-name').disabled,false);
   assert.equal(element('#match-close').hidden,true);
   assert.equal(element('#match-join').disabled,true);
   assert.equal(element('#match-share').hidden,true);
@@ -92,6 +96,10 @@ test('multiplayer sync works with the roster script in a separate scope', () => 
   assert.match(element('#match-status').textContent,/Match closed/);
   assert.equal(element('#add-form').closest().hidden,false);
   vm.runInContext('current=null; renderMatch()',context);
+  vm.runInContext('matchLoading=true; controls()',context);
+  assert.equal(element('#match-create').disabled,true);
+  vm.runInContext('matchLoading=false; controls()',context);
+  assert.equal(element('#match-create').disabled,false);
   assert.equal(element('#add-form').closest().hidden,false);
   assert.equal(element('#total').textContent,1);
 });
