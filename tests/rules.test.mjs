@@ -3,7 +3,7 @@ import {before, after, beforeEach, test} from 'node:test';
 import assert from 'node:assert/strict';
 import {initializeTestEnvironment, assertFails, assertSucceeds} from '@firebase/rules-unit-testing';
 import {ref, set, get, runTransaction, update, remove, onValue} from 'firebase/database';
-import {changePlayer, newPlayer, joinMatch, bootPlayer} from '../dist/js/match-model.mjs';
+import {changePlayer, newPlayer, joinMatch, bootPlayer, closeMatch, leaveMatch} from '../dist/js/match-model.mjs';
 let env;
 const id = 'abcdefghijklmnopqrst';
 const path = `matches/${id}`;
@@ -104,7 +104,6 @@ test('only host can boot; slot and hero are freed and the same player can rejoin
  const picked=changePlayer(joined,'bob','bob',{hero:'Haze'});
  await set(ref(db('bob'),path),picked);
  const booted=bootPlayer(picked,'alice','bob');
- await assertFails(set(ref(db('bob'),path),booted));
  await assertFails(set(ref(db('eve'),path),booted));
  await assertFails(update(ref(db('alice'),path),{'players/alice':null,'slots/0':null}));
  await assertFails(remove(ref(db('alice'),`${path}/players/bob`)));
@@ -115,4 +114,65 @@ test('only host can boot; slot and hero are freed and the same player can rejoin
  const rejoined=joinMatch(released,'bob','Bob');
  await assertSucceeds(set(ref(db('bob'),path),rejoined));
  assert.equal((await get(ref(db('bob'),path))).val().players.bob.slot,'1');
+});
+
+test('skill levels sync to other clients and persist for later joins', async () => {
+ const host=db('alice');
+ const guest=db('bob');
+ assert.equal((await get(ref(guest,path))).val().players.bob.tier,'unsorted');
+ let unsubscribe;
+ const observed=new Promise((resolve,reject)=>{
+   const timer=setTimeout(()=>reject(new Error('Skill level was not synced')),5000);
+   unsubscribe=onValue(ref(guest,path),snapshot=>{
+     if(snapshot.val()?.players.bob.tier==='high'){clearTimeout(timer);resolve();}
+   },reject);
+ });
+ try {
+   await assertSucceeds(update(ref(host,`${path}/players/bob`),{tier:'high'}));
+   await observed;
+ } finally {unsubscribe?.();}
+ await assertFails(update(ref(guest,`${path}/players/alice`),{tier:'high'}));
+ await assertFails(update(ref(guest,`${path}/players/bob`),{tier:'expert'}));
+ const beforeJoin=(await get(ref(host,path))).val();
+ await assertSucceeds(set(ref(db('eve'),path),joinMatch(beforeJoin,'eve','Eve')));
+ const afterJoin=(await get(ref(db('eve'),path))).val();
+ assert.equal(afterJoin.players.bob.tier,'high');
+ assert.equal(afterJoin.players.eve.tier,'unsorted');
+ await assertSucceeds(update(ref(guest,`${path}/players/bob`),{tier:'mid'}));
+ assert.equal((await get(ref(host,path))).val().players.bob.tier,'mid');
+});
+
+test('host closure persists for everyone and blocks joins, edits, and reopening', async () => {
+ await assertFails(set(ref(db('bob'),`${path}/closed`),true));
+ await assertFails(set(ref(db('eve'),`${path}/closed`),true));
+ const state=(await get(ref(db('alice'),path))).val();
+ await assertSucceeds(set(ref(db('alice'),path),closeMatch(state,'alice')));
+ assert.equal((await get(ref(db('bob'),path))).val().closed,true);
+ await assertFails(set(ref(db('eve'),path),joinMatch(state,'eve','Eve')));
+ await assertFails(update(ref(db('bob'),`${path}/players/bob`),{ready:true}));
+ await assertFails(update(ref(db('alice'),`${path}/players/alice`),{tier:'high'}));
+ await assertFails(remove(ref(db('alice'),`${path}/closed`)));
+ await assertFails(set(ref(db('alice'),path),state));
+});
+
+test('members may leave and rejoin; host departure transfers ownership and last departure closes', async () => {
+ const state=(await get(ref(db('alice'),path))).val();
+ const picked=changePlayer(state,'bob','bob',{hero:'Haze'});
+ await set(ref(db('bob'),path),picked);
+ const left=leaveMatch(picked,'bob');
+ await assertFails(set(ref(db('eve'),path),left));
+ await assertSucceeds(set(ref(db('bob'),path),left));
+ const rejoined=joinMatch(left,'bob','Bob');
+ await assertSucceeds(set(ref(db('bob'),path),rejoined));
+ const transferred=leaveMatch(rejoined,'alice');
+ await assertFails(set(ref(db('bob'),path),transferred));
+ await assertFails(set(ref(db('alice'),`${path}/owner`),'bob'));
+ await assertSucceeds(set(ref(db('alice'),path),transferred));
+ assert.equal((await get(ref(db('bob'),path))).val().owner,'bob');
+ await assertFails(update(ref(db('alice'),`${path}/players/bob`),{tier:'high'}));
+ await assertSucceeds(set(ref(db('bob'),path),leaveMatch(transferred,'bob')));
+ const closed=(await get(ref(db('bob'),path))).val();
+ assert.equal(closed.closed,true);
+ assert.equal(closed.players,undefined);
+ await assertFails(set(ref(db('bob'),path),transferred));
 });

@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {changePlayer, newPlayer, joinMatch, bootPlayer} from '../dist/js/match-model.mjs';
+import {changePlayer, newPlayer, joinMatch, bootPlayer, closeMatch, leaveMatch} from '../dist/js/match-model.mjs';
 const fixture = () => ({owner: 'a', allowDuplicates: false, players: {a: newPlayer('Alice'), b: newPlayer('Bob')}});
 test('claims survive unrelated updates and reject a racing duplicate pick', () => {
   const first = changePlayer(fixture(), 'a', 'a', {hero: 'Abrams'});
@@ -49,4 +49,45 @@ test('booting releases the slot and hero, preserves other players, and permits r
  assert.throws(()=>changePlayer(booted,'b','b',{ready:true}),/Join/);
  const rejoined=joinMatch(booted,'b','Bob');
  assert.deepEqual(rejoined.players.b,newPlayer('Bob','1'));
+});
+
+test('skill levels start unsorted and respect player editing permissions', () => {
+ const state=fixture();
+ assert.equal(state.players.a.tier,'unsorted');
+ const changed=changePlayer(state,'a','b',{tier:'high'});
+ assert.equal(changed.players.b.tier,'high');
+ assert.equal(state.players.b.tier,'unsorted');
+ assert.equal(changePlayer(changed,'b','b',{tier:'mid'}).players.b.tier,'mid');
+ assert.throws(()=>changePlayer(state,'b','a',{tier:'high'}),/administrator/);
+ assert.throws(()=>changePlayer(state,'a','b',{tier:'expert'}),/Invalid skill/);
+});
+
+test('only host can close a match and closed matches reject joins and edits', () => {
+ const state=fixture();
+ assert.throws(()=>closeMatch(state,'b'),/host/);
+ const closed=closeMatch(state,'a');
+ assert.equal(closed.closed,true);
+ assert.equal(state.closed,undefined);
+ assert.throws(()=>joinMatch(closed,'c','Charlie'),/closed/);
+ assert.throws(()=>joinMatch(closed,'b','Bob'),/closed/);
+ assert.throws(()=>changePlayer(closed,'a','a',{tier:'high'}),/closed/);
+ assert.throws(()=>bootPlayer(closed,'a','b'),/closed/);
+});
+
+test('leaving frees claims, allows rejoining, transfers host, and closes an empty lobby', () => {
+ let state={owner:'a',allowDuplicates:false,slots:{'0':'a'},players:{a:newPlayer('Alice')}};
+ state=joinMatch(state,'b','Bob');
+ state=changePlayer(state,'b','b',{hero:'Haze'});
+ const left=leaveMatch(state,'b');
+ assert.equal(left.players.b,undefined);
+ assert.equal(left.claims.Haze,undefined);
+ assert.equal(left.slots['1'],undefined);
+ assert.equal(joinMatch(left,'b','Bob').players.b.slot,'1');
+ const transferred=leaveMatch(state,'a');
+ assert.equal(transferred.owner,'b');
+ assert.equal(transferred.players.a,undefined);
+ const empty=leaveMatch(transferred,'b');
+ assert.equal(empty.closed,true);
+ assert.deepEqual(empty.players,{});
+ assert.throws(()=>leaveMatch(state,'outsider'),/Join/);
 });

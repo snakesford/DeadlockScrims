@@ -1,18 +1,18 @@
-import {changePlayer, newPlayer, joinMatch, bootPlayer} from './match-model.mjs';
+import {changePlayer, newPlayer, joinMatch, bootPlayer, closeMatch, leaveMatch} from './match-model.mjs?v=leave-match-1';
 const $ = id => document.getElementById(id);
-const message = text => { $('match-status').textContent = text; };
+const message = text => { $('match-status').textContent = text; if (current) $('status').textContent = text; };
 let sdk, db, uid, matchId, current, connected = false, busy = false, unsubscribe;
-const requestedId = new URL(location.href).searchParams.get('match');
+let requestedId = new URL(location.href).searchParams.get('match');
 const validId = id => /^[A-Za-z0-9_-]{20,64}$/.test(id || '');
 function controls() {
   $('match-create').disabled = !uid || !connected || busy;
-  $('match-join').disabled = !uid || !connected || busy || !validId(requestedId);
+  $('match-join').disabled = !uid || !connected || busy || !validId(requestedId) || !!current?.closed;
 }
 async function action(work) {
   if (busy) return;
   if (!connected) { message('You are offline. Reconnect before changing your match.'); return; }
   busy = true; controls(); renderMatch();
-  try { await work(); message('Match saved.'); }
+  try { await work(); message('Match saved.'); return true; }
   catch (error) { message(error.message || 'Unable to save this change.'); }
   finally { busy = false; controls(); renderMatch(); }
 }
@@ -22,7 +22,7 @@ function playerName() {
   return name;
 }
 function watch(id) {
-  unsubscribe?.(); matchId = id;
+  unsubscribe?.(); current = null; matchId = id; renderMatch();
   const link = new URL(location.href); link.searchParams.set('match', id); link.hash = 'match';
   history.replaceState(null, '', link); showPage();
   $('match-link').value = link.href;
@@ -35,7 +35,7 @@ function watch(id) {
   }, error => { current = null; renderMatch(); message(`Unable to load match: ${error.message}`); });
 }
 async function updateMatch(transform) {
-  await action(async () => {
+  return action(async () => {
     // Transactions retry against the newest complete match, including hero claims.
     let conflict;
     const result = await sdk.runTransaction(sdk.ref(db, `matches/${matchId}`), value => {
@@ -51,16 +51,44 @@ function updatePlayer(target, patch) {
   return updateMatch(value => changePlayer(value, uid, target, patch));
 }
 function renderMatch() {
+  controls();
+  $('match-close').hidden = !current || current.owner !== uid || !!current.closed;
+  $('match-close').disabled = !connected || busy;
+  $('match-leave').hidden = !current?.players?.[uid] || !!current?.closed;
+  $('match-leave').disabled = !connected || busy;
+  $('match-share').hidden = !current || !!current.closed;
+  window.dispatchEvent(new CustomEvent('roster:sync', {detail: current && !current.closed ? {
+    players: Object.entries(current.players || {}).map(([id, player]) => ({id, name: player.name, tier: player.tier || 'unsorted'})),
+    connected,
+    canEdit: id => connected && !busy && !!current?.players?.[uid] && (id === uid || current.owner === uid),
+    update: updatePlayer
+  } : null}));
   $('match-title').textContent = current?.name || 'MATCH LOBBY';
   const list = $('match-players'); list.replaceChildren();
   $('match-details').textContent = current ? `Match ${matchId} · ${current.allowDuplicates ? 'Duplicate heroes allowed' : 'Unique heroes only'}${current.owner === uid ? ' · You are the administrator' : ''}` : '';
+  if (current?.closed) {
+    $('match-details').textContent = 'This match has been closed by the host.';
+    message('Match closed. Create a new match to play again.');
+    return;
+  }
   for (const [id, player] of Object.entries(current?.players || {})) {
     const card = document.createElement('section'); card.className = 'player-stat-card';
-    const heading = document.createElement('h3'); heading.textContent = player.name + (id === uid ? ' (you)' : ''); card.append(heading);
+    const header = document.createElement('div'); header.className = 'match-player-header';
+    const heading = document.createElement('h3'); heading.textContent = player.name + (id === uid ? ' (you)' : ''); header.append(heading);
+    const ranks = [['unsorted', 'Unsorted'], ['high', 'High'], ['mid', 'Mid'], ['newer', 'Newer']];
+    const tier = ranks.some(([value]) => value === player.tier) ? player.tier : 'unsorted';
+    const rank = document.createElement(current.owner === uid ? 'select' : 'span');
+    rank.className = `match-player-rank rank-${tier}`;
+    rank.setAttribute('aria-label', `Rank for ${player.name}`);
+    if (current.owner === uid) {
+      for (const [value, label] of ranks) rank.add(new Option(label, value));
+      rank.value = tier; rank.disabled = !connected || busy;
+      rank.onchange = () => updatePlayer(id, {tier: rank.value});
+    } else {
+      rank.textContent = ranks.find(([value]) => value === tier)[1];
+    }
+    header.append(rank); card.append(header);
     const editable = connected && !busy && (id === uid || current.owner === uid);
-    const name = document.createElement('input'); name.value = player.name; name.maxLength = 60; name.disabled = !editable;
-    name.setAttribute('aria-label', `Name for ${player.name}`);
-    name.onchange = () => { if (name.value.trim()) updatePlayer(id, {name: name.value.trim()}); else renderMatch(); }; card.append(name);
     function select(label, values, value, field) {
       const wrapper = document.createElement('label'); wrapper.textContent = label;
       const input = document.createElement('select'); input.disabled = !editable;
@@ -73,7 +101,7 @@ function renderMatch() {
     }
     select('Match hero', [['', 'Choose a hero…'], ...heroCatalog.map(h => [h.name, h.name])], player.hero, 'hero');
     select('Team', [['unassigned', 'Unassigned'], ['amber', 'Amber'], ['sapphire', 'Sapphire']], player.team, 'team');
-    const ready = document.createElement('button'); ready.textContent = player.ready ? '✓ Ready' : 'Not ready'; ready.disabled = !editable;
+    const ready = document.createElement('button'); ready.className = 'match-ready'; ready.textContent = player.ready ? '✓ Ready' : 'Not ready'; ready.disabled = !editable;
     ready.setAttribute('aria-pressed', String(player.ready)); ready.onclick = () => updatePlayer(id, {ready: !player.ready}); card.append(ready);
     if (current.owner === uid && id !== uid) {
       const boot = document.createElement('button'); boot.type = 'button';
@@ -86,6 +114,16 @@ function renderMatch() {
     list.append(card);
   }
 }
+$('match-leave').onclick = async () => {
+  const left = await updateMatch(value => leaveMatch(value, uid));
+  if (!left) return;
+  unsubscribe?.(); unsubscribe = undefined;
+  current = null; matchId = null; requestedId = null;
+  const link = new URL(location.href); link.searchParams.delete('match');
+  history.replaceState(null, '', link);
+  renderMatch(); message('You left the match. Use its invite link to join again.');
+};
+$('match-close').onclick = () => updateMatch(value => closeMatch(value, uid));
 $('match-create').onclick = () => action(async () => {
   const name = playerName();
   const lobbyName = $('lobby-name').value.trim();

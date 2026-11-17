@@ -1,7 +1,8 @@
 # Deadlock Scrims
 
-Static Deadlock roster and multiplayer match lobby. The existing Skill Levels,
-Stats (including three favorite heroes), and Queue remain local to each browser.
+Static Deadlock roster and multiplayer match lobby. Skill Levels follows the active lobby and syncs player names and tiers across clients.
+Outside a lobby, the standalone skill roster stays local. Stats (including three
+favorite heroes) and Queue remain local to each browser.
 The new **Match** tab shares the actual match hero, team, player name and ready
 status in Firebase Realtime Database. It uses no application server.
 
@@ -97,3 +98,9 @@ schema validation and malicious writes. For browser smoke testing, serve
 - Check that local tier editing, favorites, wins and queue still work.
 
 The host can use the red **Boot** button to remove another player, freeing their slot and hero. Removed players can reopen the invite link and join again; booting does not ban them.
+
+Joining players appear in **Skill Levels → Unsorted** automatically. Players can change their own name and tier; the host can change anyone’s. Tier assignments persist in the lobby and are loaded for new joiners. Booted players are removed from the shared board.
+
+The host can use **Close match** to end a lobby for everyone. Closed matches reject further joins and edits; start a new match to play again.
+
+Every joined player can **Leave match**, freeing their slot and hero. The host transfers to the remaining player with the lowest slot number when leaving; the last departure closes the match. Players can rejoin an open match using its invite link.
