@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="css/hero-selection.css">
 <link rel="stylesheet" href="css/typography.css">
 <link rel="stylesheet" href="css/deadlock-theme.css">
-<link rel="stylesheet" href="css/multiplayer.css?v=teams-title-1">
+<link rel="stylesheet" href="css/multiplayer.css?v=player-name-size-1">
 <link rel="stylesheet" href="css/light-theme.css?v=1">
 </head>
 <body>
@@ -26,13 +26,13 @@
 <div class="match-setup">
 <section class="quick-add match-setup-card" aria-labelledby="player-setup-title">
 <p class="match-section-label" id="player-setup-title">YOUR PROFILE</p>
-<div class="match-input-group"><label for="match-name">Player name</label><input id="match-name" maxlength="60" placeholder="Enter your player name" autocomplete="nickname"></div>
-<div class="match-card-footer"><button id="match-join" disabled>Join linked match</button><p class="match-help">Joining friends? Open their invite link, then join here.</p></div>
+<div class="match-input-group match-name-group"><label for="match-name">Player name</label><input id="match-name" maxlength="60" placeholder="Enter your player name" autocomplete="nickname"></div>
+<div class="match-card-footer"><button id="match-join" disabled>Join linked match</button></div>
 </section>
 <section class="quick-add match-setup-card" aria-labelledby="lobby-setup-title">
 <p class="match-section-label" id="lobby-setup-title">HOST A MATCH</p>
 <div class="match-input-group"><label for="lobby-name">Lobby name <span>Optional</span></label><input id="lobby-name" maxlength="60" placeholder="e.g. Friday night scrims" autocomplete="off"></div>
-<div class="match-card-footer"><button id="match-create" class="primary" disabled>Create match</button><p class="match-help">Uses your player name. You’ll be the host.</p></div>
+<div class="match-card-footer"><button id="match-create" class="primary" disabled>Create match</button></div>
 </section>
 </div>
 <div id="match-share" class="quick-add" hidden><label for="match-link">Invite players</label><div class="fields"><input id="match-link" readonly><button id="match-copy">Copy link</button></div></div>
