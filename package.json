@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "test": "node --test tests/match-model.test.mjs",
+    "test": "node --test tests/match-model.test.mjs tests/roster-sync.test.mjs tests/account.test.mjs tests/theme.test.mjs",
     "test:rules": "firebase emulators:exec --only database --project demo-deadlock-scrims \"node --test tests/rules.test.mjs\"",
     "start": "firebase emulators:start --only hosting --project demo-deadlock-scrims"
   },

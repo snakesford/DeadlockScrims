@@ -1,0 +1,42 @@
+/* Parchment surfaces, ink text and brass accents retain the occult menu language. */
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f3efe5;--surface:#fffcf5;--panel:#e8e4d9;
+  --text:#252e2b;--muted:#5d6862;--line:#b9bcb0;
+  --gold:#80601f;--mint:#216f5d;--red:#a42d37;
+}
+.theme-control{display:flex;align-items:center;gap:8px;flex:none;margin-left:auto}
+.theme-control label{font-size:10px;letter-spacing:1px;text-transform:uppercase}
+#theme-select{width:auto;max-width:112px;padding:8px 10px;font-size:11px;background:var(--bg);color:var(--text);border:1px solid var(--line)}
+header .local{margin-left:0}
+[data-theme="light"] .primary,[data-theme="light"] .edit-heroes{background:var(--gold);border-color:var(--gold);color:#fffdf7}
+[data-theme="light"] .primary:hover,[data-theme="light"] .edit-heroes:hover{background:#674b17;border-color:#674b17;color:#fffdf7}
+[data-theme="light"] .bottom-nav a[aria-current]{background:#dce9df;color:var(--mint)}
+[data-theme="light"] .name-chip:hover{background:#e0e7dc;border-color:#7e897a}
+[data-theme="light"] .tier-row.drag-over{background:#e0eee2}
+[data-theme="light"] :is(.empty,.queue-empty,.heroes-empty,.hint){color:var(--muted)}
+[data-theme="light"] :is(.queue-remove,#delete){color:var(--red)}
+[data-theme="light"] #match-join:hover:not(:disabled){background:#dce9df}
+[data-theme="light"] #match-players .rank-high{color:#715716;background:#faf0c7}
+[data-theme="light"] #match-players .rank-mid{color:#5b4789;background:#eae5f8}
+[data-theme="light"] #match-players .rank-newer{color:#2b5c7c;background:#dfedf7}
+[data-theme="light"] #match-players .match-ready{color:#216d3d;border-color:#247a44}
+[data-theme="light"] #match-players .match-ready[aria-pressed="true"]{color:#fff;background:#247a44}
+[data-theme="light"] #match-players .match-ready[aria-pressed="true"]:hover:not(:disabled){background:#1d6638}
+[data-theme="light"] dialog::backdrop{background:#28342d66}
+[data-theme="light"] #heroes-dialog::backdrop{background:var(--bg)}
+[data-theme="light"] #heroes-dialog::before{background:linear-gradient(90deg,#f3efe5f5, #f3efe5c9 40%,transparent 80%)}
+[data-theme="light"] .hero-title-block{text-shadow:0 2px 10px #fffcf5,0 0 25px #fffcf5}
+[data-theme="light"] .hero-title-block>p{color:var(--muted)}
+[data-theme="light"] #hero-render{filter:drop-shadow(0 16px 25px #394a3833)}
+[data-theme="light"] #heroes-dialog .hero-choice img{filter:saturate(.85)}
+[data-theme="light"] #heroes-dialog .hero-choice:hover img,[data-theme="light"] #heroes-dialog .hero-choice[aria-pressed="true"] img{filter:none}
+[data-theme="light"] #heroes-dialog #heroes-selected button{border-color:var(--mint);background:#e4eee5;color:var(--mint)}
+[data-theme="light"] #heroes-dialog .primary{background:var(--gold);color:#fffdf7;border-color:var(--gold)}
+[data-theme="light"] #heroes-dialog .primary:hover{background:#674b17;color:#fffdf7}
+[data-theme="light"] #hero-preview-priority{color:#fffdf7}
+/* Markers sit over artwork, so retain their bright fill and dark outline. */
+[data-theme="light"] #match-players .stats-hero-priority{color:#79cdbb}
+@media(max-width:900px){header{gap:16px}.header-note{display:none}}
+@media(max-width:600px){header{padding-inline:16px;gap:12px}header .local{display:none}.theme-control label{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%)}#theme-select{max-width:100px}}
+@media(max-width:650px){[data-theme="light"] #heroes-dialog::before{background:#f3efe5eb}}

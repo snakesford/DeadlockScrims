@@ -1,7 +1,8 @@
 # Deadlock Scrims
 
-Static Deadlock roster and multiplayer match lobby. The existing Skill Levels,
-Stats (including three favorite heroes), and Queue remain local to each browser.
+Static Deadlock roster and multiplayer match lobby. Skill Levels follows the active lobby and syncs player names and tiers across clients.
+Outside a lobby, the standalone skill roster stays local. Stats (including three
+favorite heroes) and Queue remain local to each browser.
 The new **Match** tab shares the actual match hero, team, player name and ready
 status in Firebase Realtime Database. It uses no application server.
 
@@ -41,9 +42,10 @@ Keep all project changes in this Git repository. Install dependencies here;
 
 ## Using matches
 
-Enter a name in **Match**, choose whether duplicate heroes are allowed, and
+Enter your player name and an optional lobby name (up to 60 characters) in **Match**, choose whether duplicate heroes are allowed, and
 click **Create match**. Each match has 12 player slots. Copy its invite URL. Other players open that URL, enter
-their names, and click **Join linked match**. The creator is the administrator and
+their names, and click **Join match**. Players can also paste the full URL into
+the **Invite link** field. Use **Copy link** to share it. The creator is the administrator and
 can edit anyone's entries; other players can edit only their own. Duplicate mode
 is fixed at creation. Hero changes clear ready status. Picks, team assignments,
 readiness and names update automatically on all connected screens.
@@ -63,6 +65,14 @@ save is persisted in Firebase, not only localStorage. SDK connection/auth errors
 are displayed in the lobby. No presence cleanup deletes selections.
 
 ## Data and security
+
+The app uses Firebase Realtime Database, not SQL. Player and lobby names are
+stored as string values, never assembled into executable queries or database
+paths. Client validation checks name types and lengths; Firebase rules enforce
+types, lengths, allowed fields, and permissions independently of the browser.
+User names are rendered with `textContent`. Do not add SQL keyword filters or
+strip apostrophes; if SQL storage is introduced, use parameterized queries.
+Injection regression tests cover literal SQL-like names and rejected object inputs.
 
 `matches/{pushId}` contains immutable `owner` and `allowDuplicates` settings,
 `players/{authUid}` records (`slot`, `name`, `hero`, `team`, `ready`), immutable
@@ -95,3 +105,19 @@ schema validation and malicious writes. For browser smoke testing, serve
 - Disconnect/reconnect; verify controls disable offline and current state returns.
 - Create another match and verify changes do not cross match IDs.
 - Check that local tier editing, favorites, wins and queue still work.
+
+The host can use the red **Boot** button to remove another player, freeing their slot and hero. Removed players can reopen the invite link and join again; booting does not ban them.
+
+Joining players appear in **Skill Levels → Unsorted** automatically. Players can change their own name and tier; the host can change anyone’s. Tier assignments persist in the lobby and are loaded for new joiners. Booted players are removed from the shared board.
+
+The host can use **Close match** to end a lobby for everyone. Closed matches reject further joins and edits; start a new match to play again.
+
+Every joined player can **Leave match**, freeing their slot and hero. The host transfers to the remaining player with the lowest slot number when leaving; the last departure closes the match. Players can rejoin an open match using its invite link.
+
+The **Account** tab saves a display name and up to three favorite heroes with priorities on this device. The saved name prefills match creation/joining and saving it updates your name in an active lobby. Account favorites are separate from the hero you select for a match.
+
+**Skill Levels** is available only while you are a member of an open match. Leaving, being booted, or closing the match hides the tab and redirects an open skill board to Match. Live total and per-tier player counts appear in Match instead of Stats.
+
+Match cards display the player’s Account hero roster with priorities, match wins, name, skill level, team, match hero, and ready state. Favorites are copied on creation/join and Account hero changes sync to an active match. Wins start at zero for each new match membership and can be updated by the player or host.
+
+Use the header’s **Theme** selector for **System**, **Light**, or **Dark**. System follows device appearance by default; explicit choices persist on this device and synchronize across tabs. The light palette retains the typography, occult pattern, full tier-color count cards, and green ready states.
