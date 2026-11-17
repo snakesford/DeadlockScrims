@@ -1,0 +1,11 @@
+/* Use installed custom fonts when available; preserve the existing fallbacks. */
+@font-face{font-family:'Roster Pulp';src:local('VALVE Pulp Bold'),local('VALVEPulp-Bold');font-weight:100 900;font-display:swap}
+@font-face{font-family:'Roster Occult';src:local('VALVE Occult Semibold'),local('VALVEOccult-Semibold');font-weight:100 900;font-display:swap}
+@font-face{font-family:'Roster Retail';src:local('Retail Demo'),local('RetailDemo');font-weight:100 900;font-display:swap}
+@font-face{font-family:'Roster Oracle';src:local('VALVE Oracle'),local('VALVEOracle');font-weight:100 900;font-display:swap}
+:root{font-family:'Roster Retail','DM Sans',sans-serif}
+h1{font-family:'Roster Pulp',Manrope,sans-serif}
+#heroes-title,#hero-preview-name,#heroes-dialog .primary{font-family:'Roster Pulp',Impact,'Arial Narrow',sans-serif}
+h2,h3,button,input,select,.bottom-nav,.stat-card,.wins-counter,.queue-row,.character-stat,.selection-controls{font-family:'Roster Occult','DM Sans',sans-serif}
+.tier-name,.total strong{font-family:'Roster Occult',Manrope,sans-serif}
+.eyebrow,.selection-heading>p,.hero-title-block>p,#hero-preview-priority{font-family:'Roster Oracle','DM Sans',sans-serif}
