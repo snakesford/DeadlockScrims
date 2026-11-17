@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100">
+<g fill="none" stroke="#79a99e" stroke-width="1" opacity=".13">
+<circle cx="1220" cy="470" r="410"/><circle cx="1220" cy="470" r="385"/><circle cx="1220" cy="470" r="275"/>
+<circle cx="940" cy="700" r="320"/><circle cx="290" cy="890" r="210"/><circle cx="290" cy="890" r="190"/>
+<path d="M1220 60 865 675h710ZM865 265h710l-355 615ZM810 470h820M1220 60v820M930 180l580 580M930 760l580-580M-40 1100 290 680 620 1100M100 890h380M290 680v420"/>
+<circle cx="1220" cy="470" r="28"/><circle cx="1220" cy="470" r="10"/><circle cx="940" cy="700" r="12"/>
+<path d="M1220 60 940 700 1630 470 940 700 1510 180M810 470l130 230 280 180M930 180l10 520 570 60M940 700 290 890 0 680M940 700 290 890 70 1100"/>
+</g>
+<filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+<path fill="#fff" opacity=".025" filter="url(#grain)" d="M0 0h1600v1100H0z"/>
+</svg>

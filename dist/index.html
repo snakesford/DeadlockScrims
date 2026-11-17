@@ -6,12 +6,12 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="hero-selection.css">
 <link rel="stylesheet" href="typography.css">
-<link rel="stylesheet" href="stats-theme.css">
+<link rel="stylesheet" href="deadlock-theme.css">
 </head>
 <body>
 <header><a class="brand" href="./"><span class="logo">▥</span> roster<span class="brand-dot">.</span></a><span class="header-note">A little order for your lineup.</span><span class="local"><i></i> Saved on this device</span></header>
 <main id="skills-page">
-<div class="intro"><div><p class="eyebrow">YOUR PEOPLE, IN PLACE</p><h1>Make your lineup.</h1><p class="subtitle">Add a name. Pick a tier. Find where everyone fits.</p></div><div class="total"><strong id="total">0</strong><span>names on the board</span></div></div>
+<div class="intro"><div><p class="eyebrow">DEADLOCK / SKILL DIVISIONS</p><h1>BUILD YOUR LINEUP</h1><p class="subtitle">Every player has a place. Find theirs.</p></div><div class="total"><strong id="total">0</strong><span>PLAYERS ASSIGNED</span></div></div>
 <section class="quick-add" aria-label="Add a name"><form id="add-form"><label for="name">Add to the board</label><div class="fields"><input id="name" placeholder="Enter a name…" maxlength="60" required autocomplete="off"><select id="tier" aria-label="Choose a tier"><option value="unsorted">Unsorted</option><option value="high">High</option><option value="mid">Mid</option><option value="newer">Newer</option></select><button class="primary" type="submit"><span>＋</span> Add name</button></div></form></section>
 <div class="board-heading"><h2>The tier list <span id="tier-count">3 tiers</span></h2><span class="hint">Drag names to sort, or use their menu <span>↗</span></span></div>
 <div id="board"></div>
@@ -25,7 +25,7 @@
 <p id="stats-status" role="status" aria-live="polite"></p>
 </main>
 <main id="queue-page" hidden>
-<div class="intro"><div><p class="eyebrow">UP NEXT</p><h1>The queue.</h1><p class="subtitle">Add players from your roster in the order they’re up next.</p></div></div>
+<div class="intro"><div><p class="eyebrow">UP NEXT</p><h1>PLAYER QUEUE</h1><p class="subtitle">Add players from your roster in the order they’re up next.</p></div></div>
 <section class="quick-add"><form id="queue-form"><label for="queue-player">Add a player</label><div class="fields"><select id="queue-player" required></select><button class="primary" id="queue-add">＋ Add to queue</button></div></form></section>
 <div class="board-heading"><h2>Waiting <span id="queue-count">0 players</span></h2></div>
 <ol id="queue-list"></ol><p id="queue-status" role="status"></p>

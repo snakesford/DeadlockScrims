@@ -1,0 +1,53 @@
+/* A warm, brass-accented ranking board, distinct from the green Stats panels. */
+body:has(#skills-page:not([hidden])){min-height:100dvh;color:#ece2cb;background:#191915;background-image:linear-gradient(115deg,#66573a19,transparent 55%),repeating-linear-gradient(0deg,transparent 0 47px,#c6b68306 47px 48px)}
+body:has(#skills-page:not([hidden]))>header{background:#181914e8;border-bottom:1px solid #6c63443d}
+body:has(#skills-page:not([hidden])) .brand{color:#e8dfc6}
+body:has(#skills-page:not([hidden])) .brand-dot{color:#c2a66a}
+body:has(#skills-page:not([hidden])) .header-note,body:has(#skills-page:not([hidden])) .local{color:#a7a18b}
+body:has(#skills-page:not([hidden])) .bottom-nav{background:#20221bf5;border-color:#766c4f;border-radius:0;box-shadow:0 6px 24px #0006}
+body:has(#skills-page:not([hidden])) .bottom-nav a{color:#b6b09c;border-radius:0}
+body:has(#skills-page:not([hidden])) .bottom-nav a:hover{background:#37382a;color:#f3e6c6}
+body:has(#skills-page:not([hidden])) .bottom-nav a[aria-current]{background:#d9c591;color:#28291f}
+#skills-page{max-width:1250px;padding-top:42px}
+#skills-page .intro{border-bottom:1px solid #766d4a70;padding-bottom:25px;margin-bottom:22px;gap:22px}
+#skills-page .eyebrow{color:#b7a47a;font-size:10px;letter-spacing:2.5px}
+#skills-page h1{font-family:'Roster Pulp',Impact,'Arial Narrow',sans-serif;color:#e8ddbd;font-size:clamp(32px,4vw,58px);letter-spacing:.8px;line-height:1.1}
+#skills-page .subtitle{color:#aaa58f;font-size:12px}
+#skills-page .total{border-left:1px solid #80745075;padding-left:28px;flex-shrink:0}
+#skills-page .total strong{font-family:'Roster Pulp',Impact,'Arial Narrow',sans-serif;font-size:46px;color:#d7c18d;line-height:1}
+#skills-page .total span{font-size:9px;letter-spacing:1px;color:#aaa28a}
+#skills-page .quick-add{border-radius:0;background:#28291f;border:1px solid #5a5941;border-left:3px solid #b7a372;padding:17px 20px;box-shadow:none}
+#skills-page .quick-add label{color:#c8b98d;font-size:10px;text-transform:uppercase;letter-spacing:1.5px}
+#skills-page input,#skills-page select{border-radius:0;border-color:#626044;background:#171b16;color:#eee4c9;font-size:13px}
+#skills-page input::placeholder{color:#939780}
+#skills-page .primary{border-radius:0;background:#d9c591;color:#27291e;text-transform:uppercase;font-weight:700;font-size:11px;letter-spacing:.6px}
+#skills-page .primary:hover{background:#ecdcaf}
+#skills-page .board-heading{margin:28px 0 13px}
+#skills-page .board-heading h2{text-transform:uppercase;letter-spacing:1.5px;font-size:11px;color:#d4c9a9}
+#skills-page .board-heading h2 span{background:#303326;border-radius:0;color:#b9b298;letter-spacing:0}
+#skills-page .hint{font-size:10px;color:#a8a58f}
+#skills-page .tier-row{min-height:118px;border-radius:0;background:#20241d;border:1px solid #4f5744;overflow:visible;position:relative;margin-bottom:14px;box-shadow:0 4px 0 #0d110c55}
+#skills-page .tier-label{width:170px;padding:20px 23px;background:var(--tint);border-right:4px solid #171c16;clip-path:polygon(0 0,100% 0,100% 86%,90% 100%,0 100%)}
+#skills-page .tier-name{font-family:'Roster Pulp',Impact,'Arial Narrow',sans-serif;font-size:28px;text-transform:uppercase;letter-spacing:1px;color:#30382c;gap:10px}
+#skills-page .tier-name .symbol{font-family:'Roster Oracle','DM Sans',sans-serif;font-size:22px}
+#skills-page .tier-caption{font-size:9px;color:#34402e;opacity:.85;margin-top:8px}
+#skills-page .count{top:9px;right:14px;color:#30382c;font-weight:700;opacity:.7}
+#skills-page .tier-body{padding:18px;gap:10px;background:repeating-linear-gradient(135deg,#c5d1ab03 0 1px,transparent 1px 10px)}
+#skills-page .name-chip{border-radius:0;border:1px solid #70785d;border-left:3px solid var(--tint);background:#343b2b;color:#f0e8d1;padding:12px 14px;font-size:13px;box-shadow:0 2px 0 #10160d}
+#skills-page .name-chip:hover{background:#46503a;border-color:var(--tint)}
+#skills-page .chip-dots{color:#bdc0a2}
+#skills-page .add-inline{border:1px dashed #748061;border-radius:0;color:#c4c6ac;font-size:10px;background:#161d1440;text-transform:uppercase;letter-spacing:.4px}
+#skills-page .add-inline:hover{color:#fff1ce;background:#3d4932}
+#skills-page .empty{color:#9da58b;font-size:11px}
+#skills-page .tier-row.drag-over{outline:2px solid var(--tint);outline-offset:3px;background:#36412c}
+#skills-page .unsorted{margin-top:25px;border-style:dashed;min-height:100px;background:#191f18;box-shadow:none}
+#skills-page .unsorted .tier-label{background:#343e2c;border-right-color:#191f18;clip-path:none}
+#skills-page .unsorted .tier-name{font-size:22px;color:#bec6a8}
+#skills-page .unsorted .tier-caption,#skills-page .unsorted .count{color:#b7c09f}
+#skills-page #status{color:#c5d3a5}
+#skills-page :focus-visible{outline:2px solid #e7d29d;outline-offset:3px}
+body:has(#skills-page:not([hidden])) #edit-dialog{border-radius:0;border-color:#807858;background:#23291e;color:#e7dfc5}
+body:has(#skills-page:not([hidden])) #edit-dialog input,body:has(#skills-page:not([hidden])) #edit-dialog select{border-radius:0;background:#151c14;border-color:#65704f;color:#e7dfc5}
+body:has(#skills-page:not([hidden])) #edit-dialog .primary{border-radius:0;background:#d9c591;color:#27291e}
+body:has(#skills-page:not([hidden])) #delete{color:#e8ab92}
+@media(max-width:700px){#skills-page{padding-top:30px}#skills-page .tier-label{width:115px;padding:18px 12px}#skills-page .tier-name{font-size:23px;gap:6px}#skills-page .tier-name .symbol{font-size:17px}#skills-page .tier-caption{font-size:8px}#skills-page .tier-body{padding:12px;gap:8px}#skills-page .unsorted .tier-name{font-size:17px}#skills-page .quick-add{padding:15px}#skills-page .name-chip{padding:10px;font-size:12px}}

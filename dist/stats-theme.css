@@ -51,3 +51,44 @@ body:has(#stats-page:not([hidden])) .bottom-nav a[aria-current]{background:#344a
 #stats-page .stat-card:is([data-tier="high"],[data-tier="mid"],[data-tier="newer"]) h2{color:#29342d}
 #stats-page .stat-card:is([data-tier="high"],[data-tier="mid"],[data-tier="newer"]) strong{color:#18251e}
 #stats-page .stat-card:is([data-tier="high"],[data-tier="mid"],[data-tier="newer"])>span{color:#455448}
+/* Match the warm brass ranking-board palette used in Skill Levels. */
+body:has(#stats-page:not([hidden])){background:#191915;background-image:linear-gradient(115deg,#66573a19,transparent 55%),repeating-linear-gradient(0deg,transparent 0 47px,#c6b68306 47px 48px);color:#ece2cb}
+body:has(#stats-page:not([hidden]))>header{background:#181914e8;border-bottom:1px solid #6c63443d}
+body:has(#stats-page:not([hidden])) .brand{color:#e8dfc6}
+body:has(#stats-page:not([hidden])) .brand-dot{color:#c2a66a}
+body:has(#stats-page:not([hidden])) .header-note,body:has(#stats-page:not([hidden])) .local{color:#a7a18b}
+body:has(#stats-page:not([hidden])) .bottom-nav{background:#20221bf5;border-color:#766c4f;box-shadow:0 6px 24px #0006}
+body:has(#stats-page:not([hidden])) .bottom-nav a{color:#b6b09c}
+body:has(#stats-page:not([hidden])) .bottom-nav a:hover{background:#37382a;color:#f3e6c6}
+body:has(#stats-page:not([hidden])) .bottom-nav a[aria-current]{background:#d9c591;color:#28291f}
+#stats-page .intro{border-bottom:1px solid #766d4a70;padding-bottom:25px;margin-bottom:22px}
+#stats-page .eyebrow{color:#b7a47a;font-size:10px;letter-spacing:2.5px}
+#stats-page h1{color:#e8ddbd;font-size:clamp(32px,4vw,58px);letter-spacing:.8px;line-height:1.1}
+#stats-page .subtitle{color:#aaa58f}
+#stats-page .stat-card{background:#28291f;border-color:#5a5941;border-top-color:var(--tier-color);box-shadow:0 4px 0 #0d110c55}
+#stats-page .stat-card strong{color:#e8ddbd}
+#stats-page .stat-card>span{color:#aaa58f}
+#stats-page .stat-card:is([data-tier="high"],[data-tier="mid"],[data-tier="newer"]){background:var(--tier-color);border-color:var(--tier-color)}
+#stats-page .stat-card:is([data-tier="high"],[data-tier="mid"],[data-tier="newer"]) strong{color:#18251e}
+#stats-page .stat-card:is([data-tier="high"],[data-tier="mid"],[data-tier="newer"])>span{color:#455448}
+#stats-page .board-heading{border-color:#766d4a70}
+#stats-page .board-heading h2{color:#d4c9a9;font-size:11px;letter-spacing:1.5px}
+#stats-page .hint{color:#a8a58f}
+#stats-page .player-stat-card{background:#20241d;border-color:#4f5744;box-shadow:0 4px 0 #0d110c55}
+#stats-page .player-stat-card::before{background:#b7a372}
+#stats-page .player-stat-heading{border-color:#766d4a70}
+#stats-page .player-stat-heading h3{color:#f0e8d1}
+#stats-page .queue-tier{clip-path:polygon(0 0,100% 0,100% 75%,90% 100%,0 100%)}
+#stats-page .wins-section{border-color:#80745075}
+#stats-page .wins-section>span,#stats-page .character-stat>span{color:#c8b98d}
+#stats-page .wins-counter output{color:#d7c18d}
+#stats-page .wins-counter button{border-color:#626044;background:#171b16;color:#d9c591}
+#stats-page .wins-counter button:hover:not(:disabled){background:#37382a;border-color:#b7a372;color:#fff1ce}
+#stats-page .stats-hero-portrait{border-color:#70785d;background:#171b16}
+#stats-page .stats-hero-caption{color:#b9b298}
+#stats-page .edit-heroes{background:#d9c591;border-color:#d9c591;color:#27291e}
+#stats-page .edit-heroes:hover{background:#ecdcaf;border-color:#ecdcaf;color:#27291e}
+#stats-page .heroes-empty{color:#9da58b}
+#stats-page .queue-empty{background:#191f18;border-color:#748061;color:#b7c09f}
+#stats-page #stats-status{color:#c5d3a5}
+#stats-page :focus-visible{outline-color:#e7d29d}

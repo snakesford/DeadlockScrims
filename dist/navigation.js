@@ -136,7 +136,7 @@ function renderStats(){
       const marker=document.createElement('span');marker.className='stats-hero-priority';marker.setAttribute('aria-label',`Priority ${priority}: ${priorityLabels[priority]}`);
       for(let level=0;level<priority;level++){
         const triangle=document.createElementNS('http://www.w3.org/2000/svg','svg');triangle.setAttribute('viewBox','0 0 20 16');triangle.setAttribute('aria-hidden','true');
-        const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M10 2 L18 14 H2 Z');path.setAttribute('fill','#62ff9e');path.setAttribute('stroke','#000');path.setAttribute('stroke-width','2');path.setAttribute('stroke-linejoin','round');triangle.append(path);marker.append(triangle);
+        const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M10 2 L18 14 H2 Z');path.setAttribute('fill','#79cdbb');path.setAttribute('stroke','#000');path.setAttribute('stroke-width','2');path.setAttribute('stroke-linejoin','round');triangle.append(path);marker.append(triangle);
       }
       portrait.append(marker);
       const caption=document.createElement('span');caption.className='stats-hero-caption';caption.textContent=`Prio ${priority}`;
