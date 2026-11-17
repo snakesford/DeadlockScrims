@@ -46,3 +46,8 @@ body:has(#stats-page:not([hidden])) .bottom-nav a[aria-current]{background:#344a
 #stats-page #stats-status{color:#b5d09e}
 #stats-page :focus-visible{outline:2px solid #d9e7b3;outline-offset:3px}
 @media(max-width:700px){#stats-page{padding-top:30px}#stats-page .stats-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#stats-page .stat-card{padding:13px 12px}#stats-page .stat-card>span{font-size:9px}#stats-page .player-stat-fields{gap:12px}#stats-page .player-stat-heading h3{font-size:16px}}
+
+#stats-page .stat-card:is([data-tier="high"],[data-tier="mid"],[data-tier="newer"]){background:var(--tier-color);border-color:var(--tier-color)}
+#stats-page .stat-card:is([data-tier="high"],[data-tier="mid"],[data-tier="newer"]) h2{color:#29342d}
+#stats-page .stat-card:is([data-tier="high"],[data-tier="mid"],[data-tier="newer"]) strong{color:#18251e}
+#stats-page .stat-card:is([data-tier="high"],[data-tier="mid"],[data-tier="newer"])>span{color:#455448}

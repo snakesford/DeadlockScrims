@@ -89,7 +89,7 @@ function renderStats(){
   const cards=document.querySelector('#stats-cards');cards.replaceChildren();
   for(const tier of [{id:'all',name:'Total players',tint:'#edf0e6'},...tiers]){
     const count=tier.id==='all'?names.length:names.filter(person=>person.tier===tier.id).length;
-    const card=document.createElement('section');card.className='stat-card';card.style.setProperty('--tier-color',tier.tint);
+    const card=document.createElement('section');card.className='stat-card';card.dataset.tier=tier.id;card.style.setProperty('--tier-color',tier.tint);
     const title=document.createElement('h2');title.textContent=tier.name;
     const number=document.createElement('strong');number.textContent=count;
     const caption=document.createElement('span');caption.textContent=tier.id==='all'?'On your roster':`${names.length?Math.round(count/names.length*100):0}% of your roster`;
