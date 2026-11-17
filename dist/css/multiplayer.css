@@ -1,0 +1,7 @@
+#match-players .player-stat-card{display:flex;flex-direction:column;gap:16px}
+#match-players label{display:flex;flex-direction:column;gap:8px}
+#match-players input,#match-players select{width:100%;min-width:0}
+#match-status,#match-details{overflow-wrap:anywhere}
+#match-page input[type=checkbox]{width:auto;margin:18px 8px 0 0}
+#match-link{min-width:0;flex:1}
+@media(max-width:500px){.bottom-nav a{padding:10px 6px;gap:4px}.bottom-nav svg{width:15px;height:15px}}

@@ -1,6 +1,6 @@
 /* Shared menu components and tokens. Layout and behavior remain in the base files. */
 :root{--bg:#0d0f0f;--surface:#191d1d;--panel:#252b2b;--text:#e6e1d3;--muted:#929b98;--gold:#c5a46d;--mint:#79cdbb;--red:#a64c42;--line:#424c48;--heading:'Roster Pulp',Impact,'Arial Narrow',sans-serif;--interface:'Roster Occult','DM Sans',sans-serif;--body:'Roster Retail','DM Sans',sans-serif;--ornament:'Roster Oracle',var(--interface);color-scheme:dark;font-family:var(--body);color:var(--text);background:var(--bg)}
-body{background:var(--bg) url('occult-pattern.svg') right top/1600px auto fixed;color:var(--text);min-height:100dvh}
+body{background:var(--bg) url('../occult-pattern.svg') right top/1600px auto fixed;color:var(--text);min-height:100dvh}
 header{background:var(--surface);border-color:var(--line);height:78px}
 .brand{color:var(--text);font-family:var(--heading);letter-spacing:1px;text-transform:uppercase;font-weight:400}.brand-dot{color:var(--gold)}.logo{color:var(--gold)}
 .header-note,.local{color:var(--muted)}.local i{background:var(--mint)}
@@ -50,7 +50,7 @@ dialog{color:var(--text)}dialog::backdrop{background:#050707bf}.dialog-heading b
 :focus-visible{outline:2px solid var(--mint);outline-offset:3px}
 /* Hero selection preserves the portrait grid, full-height renders and priorities. */
 #heroes-dialog{background:var(--bg);color:var(--text)}#heroes-dialog::before{background:linear-gradient(90deg,#0d0f0fe8,transparent 75%)}
-.selection-backdrop{background:var(--bg) url('occult-pattern.svg') center/cover no-repeat}
+.selection-backdrop{background:var(--bg) url('../occult-pattern.svg') center/cover no-repeat}
 #heroes-title,#hero-preview-name{font-family:var(--heading);color:var(--text);letter-spacing:1.5px;font-weight:400}.selection-heading>p{color:var(--muted);font-family:var(--ornament)}
 #heroes-dialog .hero-choice{border-color:var(--line);background:var(--surface);box-shadow:none}
 #heroes-dialog .hero-choice[aria-pressed=true]{border-color:var(--mint);box-shadow:0 0 0 1px var(--mint);background:var(--surface)}

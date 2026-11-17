@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/match-model.test.mjs",
+    "test:rules": "firebase emulators:exec --only database --project demo-deadlock-scrims \"node --test tests/rules.test.mjs\"",
+    "start": "firebase emulators:start --only hosting --project demo-deadlock-scrims"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "4.0.1",
+    "firebase": "11.10.0",
+    "firebase-tools": "14.22.0"
+  }
+}

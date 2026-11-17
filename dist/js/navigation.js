@@ -169,10 +169,10 @@ function renderQueue(){
 }
 document.querySelector('#queue-form').onsubmit=event=>{event.preventDefault();const id=document.querySelector('#queue-player').value;if(names.some(person=>person.id===id)&&!queue.includes(id)){queue.push(id);saveQueue('Player added to queue.');}};
 function showPage(){
-  const requested=location.hash.slice(1);const page=['skills','stats','queue'].includes(requested)?requested:'skills';
-  for(const name of ['skills','stats','queue'])document.querySelector(`#${name}-page`).hidden=name!==page;
+  const requested=location.hash.slice(1);const page=['skills','stats','queue','match'].includes(requested)?requested:'skills';
+  for(const name of ['skills','stats','queue','match'])document.querySelector(`#${name}-page`).hidden=name!==page;
   document.querySelectorAll('.bottom-nav a').forEach(link=>{if(link.dataset.page===page)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
   if(page==='stats')renderStats();if(page==='queue')renderQueue();
-  document.title=`Roster — ${page==='skills'?'Skill Levels':page==='stats'?'Stats':'Queue'}`;
+  document.title=`Roster — ${page==='skills'?'Skill Levels':page==='stats'?'Stats':page==='match'?'Match':'Queue'}`;
 }
 window.addEventListener('hashchange',showPage);showPage();
