@@ -35,7 +35,7 @@ function updateHeroSelection(){
     const priority=heroPriorities[button.dataset.hero]||0;
     button.dataset.priority=priority;
     button.setAttribute('aria-label',`${button.dataset.hero}${selected?', '+priorityLabels[priority]:''}`);
-    button.title=selected?`${priorityLabels[priority]}. Right-click or press Arrow Up to raise priority (maximum two).`:button.dataset.hero;
+    button.title=selected?`${priorityLabels[priority]}. Right-click or press Arrow Up to cycle priority: 0, 1, 2, then 0.`:button.dataset.hero;
     button.disabled=!selected&&selectedHeroes.length>=3;
   });
   document.querySelector('#heroes-selection-status').textContent=`${selectedHeroes.length} of 3 selected`;
@@ -64,7 +64,7 @@ function editHeroes(person){
     function raisePriority(event){
       event.preventDefault();
       if(!selectedHeroes.includes(hero.name))return;
-      heroPriorities[hero.name]=Math.min(2,(heroPriorities[hero.name]||0)+1);
+      heroPriorities[hero.name]=((heroPriorities[hero.name]||0)+1)%3;
       updateHeroSelection();
       document.querySelector('#heroes-selection-status').textContent=`${selectedHeroes.length} of 3 selected. ${hero.name}: ${priorityLabels[heroPriorities[hero.name]]}.`;
     }
