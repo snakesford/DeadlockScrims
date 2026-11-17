@@ -124,7 +124,24 @@ function renderStats(){
     const characterSection=document.createElement('div');characterSection.className='character-stat';
     const characterLabel=document.createElement('span');characterLabel.textContent='Favorite heroes';
     const favorites=favoriteHeroes(person);const list=document.createElement('ul');list.className='favorite-heroes';
-    for(const hero of favorites){const item=document.createElement('li');item.textContent=hero+(person.favoriteHeroPriorities?.[hero]===2?' ↑↑':person.favoriteHeroPriorities?.[hero]===1?' ↑':'');item.title=priorityLabels[person.favoriteHeroPriorities?.[hero]||0];list.append(item);}
+    for(const name of favorites){
+      const hero=heroCatalog.find(hero=>hero.name.toLowerCase()===name.toLowerCase());
+      const rawPriority=person.favoriteHeroPriorities?.[name];
+      const priority=rawPriority===1||rawPriority===2?rawPriority:0;
+      const item=document.createElement('li');item.className='stats-hero';
+      item.title=`${name} — ${priorityLabels[priority]}`;
+      const portrait=document.createElement('div');portrait.className='stats-hero-portrait';
+      if(hero){const image=document.createElement('img');image.src=hero.image;image.alt=name;image.loading='lazy';portrait.append(image);}
+      else {const fallback=document.createElement('span');fallback.className='stats-hero-fallback';fallback.textContent=name;portrait.append(fallback);}
+      const marker=document.createElement('span');marker.className='stats-hero-priority';marker.setAttribute('aria-label',`Priority ${priority}: ${priorityLabels[priority]}`);
+      for(let level=0;level<priority;level++){
+        const triangle=document.createElementNS('http://www.w3.org/2000/svg','svg');triangle.setAttribute('viewBox','0 0 20 16');triangle.setAttribute('aria-hidden','true');
+        const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M10 2 L18 14 H2 Z');path.setAttribute('fill','#62ff9e');path.setAttribute('stroke','#000');path.setAttribute('stroke-width','2');path.setAttribute('stroke-linejoin','round');triangle.append(path);marker.append(triangle);
+      }
+      portrait.append(marker);
+      const caption=document.createElement('span');caption.className='stats-hero-caption';caption.textContent=`Prio ${priority}`;
+      item.append(portrait,caption);list.append(item);
+    }
     if(!favorites.length){const empty=document.createElement('li');empty.className='heroes-empty';empty.textContent='No favorites yet';list.append(empty);}
     const edit=document.createElement('button');edit.type='button';edit.className='edit-heroes';edit.textContent=favorites.length?'Edit favorites':'＋ Add favorites';edit.setAttribute('aria-label',`Edit favorite heroes for ${person.name}`);edit.onclick=()=>editHeroes(person);
     characterSection.append(characterLabel,list,edit);fields.append(winsSection,characterSection);
