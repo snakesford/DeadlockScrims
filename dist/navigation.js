@@ -89,7 +89,7 @@ function renderStats(){
   const cards=document.querySelector('#stats-cards');cards.replaceChildren();
   for(const tier of [{id:'all',name:'Total players',tint:'#edf0e6'},...tiers]){
     const count=tier.id==='all'?names.length:names.filter(person=>person.tier===tier.id).length;
-    const card=document.createElement('section');card.className='stat-card';card.style.background=tier.tint;
+    const card=document.createElement('section');card.className='stat-card';card.style.setProperty('--tier-color',tier.tint);
     const title=document.createElement('h2');title.textContent=tier.name;
     const number=document.createElement('strong');number.textContent=count;
     const caption=document.createElement('span');caption.textContent=tier.id==='all'?'On your roster':`${names.length?Math.round(count/names.length*100):0}% of your roster`;
@@ -100,7 +100,7 @@ function renderStats(){
     const empty=document.createElement('p');empty.className='queue-empty';empty.textContent='Add players in Skill Levels to track their wins and favorite characters.';players.append(empty);
   }
   for(const person of names){
-    const form=document.createElement('section');form.className='player-stat-card';
+    const form=document.createElement('section');form.className='player-stat-card';form.style.setProperty('--tier-color',tiers.find(t=>t.id===person.tier).tint);
     const heading=document.createElement('div');heading.className='player-stat-heading';
     const title=document.createElement('h3');title.textContent=person.name;
     const badge=document.createElement('span');badge.className='queue-tier';badge.textContent=tiers.find(t=>t.id===person.tier).name;
