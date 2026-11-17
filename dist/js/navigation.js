@@ -12,7 +12,6 @@ function favoriteHeroes(person){
   return values.filter(value=>typeof value==='string').map(value=>value.trim()).filter(value=>{const key=value.toLowerCase();if(!value||seen.has(key))return false;seen.add(key);return true;}).slice(0,3);
 }
 const heroesDialog=document.querySelector('#heroes-dialog');
-let heroesPlayerId=null;
 let selectedHeroes=[];
 let heroPriorities={};
 let previewHero=null;
@@ -48,7 +47,6 @@ function updateHeroSelection(){
 let heroesSaveCallback=null;
 function editHeroes(person,onSave=null){
   heroesSaveCallback=onSave;
-  heroesPlayerId=person.id;
   selectedHeroes=favoriteHeroes(person).map(name=>heroCatalog.find(hero=>hero.name.toLowerCase()===name.toLowerCase())?.name||name);
   heroPriorities=Object.fromEntries(selectedHeroes.map(name=>[name,Math.max(0,Math.min(2,Number(person.favoriteHeroPriorities?.[name])||0))]));
   const grid=document.querySelector('#heroes-grid');grid.replaceChildren();
@@ -82,67 +80,8 @@ document.querySelector('#heroes-cancel').onclick=()=>heroesDialog.close();
 document.querySelector('#heroes-form').onsubmit=event=>{
   event.preventDefault();
   if(heroesSaveCallback){heroesSaveCallback([...selectedHeroes],Object.fromEntries(selectedHeroes.map(name=>[name,heroPriorities[name]||0])));heroesDialog.close();return;}
-  const person=names.find(person=>person.id===heroesPlayerId);if(!person){heroesDialog.close();return;}
-  person.favoriteHeroes=[...selectedHeroes];
-  person.favoriteHeroPriorities=Object.fromEntries(selectedHeroes.map(name=>[name,heroPriorities[name]||0]));
-  delete person.favoriteCharacter;
-  save(`Favorites updated for ${person.name}.`);heroesDialog.close();renderStats();
-  document.querySelector('#stats-status').textContent=storageAvailable?`Favorites saved for ${person.name}.`:'Browser storage is unavailable. These favorites will last only until you close this page.';
+  heroesDialog.close();
 };
-function renderStats(){
-  const players=document.querySelector('#player-stats');players.replaceChildren();
-  if(!names.length){
-    const empty=document.createElement('p');empty.className='queue-empty';empty.textContent='No saved player records on this device. Your current lobby roster and player counts are in Match.';players.append(empty);
-  }
-  for(const person of names){
-    const form=document.createElement('section');form.className='player-stat-card';form.style.setProperty('--tier-color',tiers.find(t=>t.id===person.tier).tint);
-    const heading=document.createElement('div');heading.className='player-stat-heading';
-    const title=document.createElement('h3');title.textContent=person.name;
-    const badge=document.createElement('span');badge.className='queue-tier';badge.textContent=tiers.find(t=>t.id===person.tier).name;
-    heading.append(title,badge);
-    const fields=document.createElement('div');fields.className='player-stat-fields';
-    const winsSection=document.createElement('div');winsSection.className='wins-section';
-    const winsLabel=document.createElement('span');winsLabel.textContent='Wins';
-    const counter=document.createElement('div');counter.className='wins-counter';
-    const up=document.createElement('button');up.type='button';up.textContent='↑';up.setAttribute('aria-label',`Add a win for ${person.name}`);
-    const number=document.createElement('output');number.setAttribute('aria-label',`Wins for ${person.name}`);
-    const down=document.createElement('button');down.type='button';down.textContent='↓';down.setAttribute('aria-label',`Remove a win for ${person.name}`);
-    let wins=Number.isSafeInteger(person.wins)&&person.wins>=0?person.wins:0;
-    function updateCounter(){number.textContent=wins;down.disabled=wins===0;up.disabled=wins===Number.MAX_SAFE_INTEGER;}
-    function changeWins(amount){
-      wins=Math.max(0,Math.min(Number.MAX_SAFE_INTEGER,wins+amount));person.wins=wins;updateCounter();
-      save(`Wins updated for ${person.name}.`);
-      document.querySelector('#stats-status').textContent=storageAvailable?`${person.name}: ${wins} wins. Saved.`:'Browser storage is unavailable. These stats will last only until you close this page.';
-    }
-    up.onclick=()=>changeWins(1);down.onclick=()=>changeWins(-1);updateCounter();
-    counter.append(up,number,down);winsSection.append(winsLabel,counter);
-    const characterSection=document.createElement('div');characterSection.className='character-stat';
-    const characterLabel=document.createElement('span');characterLabel.textContent='Roster';
-    const favorites=favoriteHeroes(person).sort((a,b)=>(person.favoriteHeroPriorities?.[b]||0)-(person.favoriteHeroPriorities?.[a]||0));const list=document.createElement('ul');list.className='favorite-heroes';
-    for(const name of favorites){
-      const hero=heroCatalog.find(hero=>hero.name.toLowerCase()===name.toLowerCase());
-      const rawPriority=person.favoriteHeroPriorities?.[name];
-      const priority=rawPriority===1||rawPriority===2?rawPriority:0;
-      const item=document.createElement('li');item.className='stats-hero';
-      item.title=`${name} — ${priorityLabels[priority]}`;
-      const portrait=document.createElement('div');portrait.className='stats-hero-portrait';
-      if(hero){const image=document.createElement('img');image.src=hero.image;image.alt=name;image.loading='lazy';portrait.append(image);}
-      else {const fallback=document.createElement('span');fallback.className='stats-hero-fallback';fallback.textContent=name;portrait.append(fallback);}
-      const marker=document.createElement('span');marker.className='stats-hero-priority';marker.setAttribute('aria-label',`Priority ${priority}: ${priorityLabels[priority]}`);
-      for(let level=0;level<priority;level++){
-        const triangle=document.createElementNS('http://www.w3.org/2000/svg','svg');triangle.setAttribute('viewBox','0 0 20 16');triangle.setAttribute('aria-hidden','true');
-        const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M10 2 L18 14 H2 Z');path.setAttribute('fill','#79cdbb');path.setAttribute('stroke','#000');path.setAttribute('stroke-width','2');path.setAttribute('stroke-linejoin','round');triangle.append(path);marker.append(triangle);
-      }
-      portrait.append(marker);
-      const caption=document.createElement('span');caption.className='stats-hero-caption';caption.textContent=`Prio ${priority}`;
-      item.append(portrait,caption);list.append(item);
-    }
-    if(!favorites.length){const empty=document.createElement('li');empty.className='heroes-empty';empty.textContent='No heroes yet';list.append(empty);}
-    const edit=document.createElement('button');edit.type='button';edit.className='edit-heroes';edit.textContent=favorites.length?'Edit roster':'＋ Add heroes';edit.setAttribute('aria-label',`Edit roster for ${person.name}`);edit.onclick=()=>editHeroes(person);
-    characterSection.append(characterLabel,list,edit);fields.append(winsSection,characterSection);
-    form.append(heading,fields);players.append(form);
-  }
-}
 function renderQueue(){
   queue=queue.filter(id=>names.some(person=>person.id===id));
   const select=document.querySelector('#queue-player');select.replaceChildren();
@@ -171,12 +110,12 @@ window.addEventListener('roster:sync',event=>{
   showPage();
 });
 function showPage(){
-  const requested=location.hash.slice(1);let page=['skills','stats','queue','match','account'].includes(requested)?requested:'match';
+  const requested=location.hash.slice(1);let page=['skills','queue','match','account'].includes(requested)?requested:'match';
   document.querySelector('[data-page="skills"]').hidden=!skillPageAvailable;
   if(page==='skills'&&!skillPageAvailable){page='match';const url=new URL(location.href);url.hash='match';history.replaceState(null,'',url);}
-  for(const name of ['skills','stats','queue','match','account'])document.querySelector(`#${name}-page`).hidden=name!==page;
+  for(const name of ['skills','queue','match','account'])document.querySelector(`#${name}-page`).hidden=name!==page;
   document.querySelectorAll('.bottom-nav a').forEach(link=>{if(link.dataset.page===page)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
-  if(page==='stats')renderStats();if(page==='queue')renderQueue();if(page==='account')renderAccount();
-  document.title=`Roster — ${page==='skills'?'Skill Levels':page==='stats'?'Stats':page==='match'?'Match':page==='account'?'Account':'Queue'}`;
+  if(page==='queue')renderQueue();if(page==='account')renderAccount();
+  document.title=`Roster — ${page==='skills'?'Skill Levels':page==='match'?'Match':page==='account'?'Account':'Queue'}`;
 }
 window.addEventListener('hashchange',showPage);showPage();
