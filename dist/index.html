@@ -7,13 +7,32 @@
 </head>
 <body>
 <header><a class="brand" href="./"><span class="logo">▥</span> roster<span class="brand-dot">.</span></a><span class="header-note">A little order for your lineup.</span><span class="local"><i></i> Saved on this device</span></header>
-<main>
+<main id="skills-page">
 <div class="intro"><div><p class="eyebrow">YOUR PEOPLE, IN PLACE</p><h1>Make your lineup.</h1><p class="subtitle">Add a name. Pick a tier. Find where everyone fits.</p></div><div class="total"><strong id="total">0</strong><span>names on the board</span></div></div>
 <section class="quick-add" aria-label="Add a name"><form id="add-form"><label for="name">Add to the board</label><div class="fields"><input id="name" placeholder="Enter a name…" maxlength="60" required autocomplete="off"><select id="tier" aria-label="Choose a tier"><option value="unsorted">Unsorted</option><option value="high">High</option><option value="mid">Mid</option><option value="newer">Newer</option></select><button class="primary" type="submit"><span>＋</span> Add name</button></div></form></section>
 <div class="board-heading"><h2>The tier list <span id="tier-count">3 tiers</span></h2><span class="hint">Drag names to sort, or use their menu <span>↗</span></span></div>
 <div id="board"></div>
 <p id="status" role="status" aria-live="polite"></p>
 </main>
+<main id="stats-page" hidden>
+<div class="intro"><div><p class="eyebrow">THE BIG PICTURE</p><h1>Player stats.</h1><p class="subtitle">A breakdown of the players on your board.</p></div></div>
+<div id="stats-cards" class="stats-grid"></div>
+<div class="board-heading"><h2>Player stats</h2></div>
+<div id="player-stats" class="player-stats-grid"></div>
+<p id="stats-status" role="status" aria-live="polite"></p>
+</main>
+<main id="queue-page" hidden>
+<div class="intro"><div><p class="eyebrow">UP NEXT</p><h1>The queue.</h1><p class="subtitle">Add players from your roster in the order they’re up next.</p></div></div>
+<section class="quick-add"><form id="queue-form"><label for="queue-player">Add a player</label><div class="fields"><select id="queue-player" required></select><button class="primary" id="queue-add">＋ Add to queue</button></div></form></section>
+<div class="board-heading"><h2>Waiting <span id="queue-count">0 players</span></h2></div>
+<ol id="queue-list"></ol><p id="queue-status" role="status"></p>
+</main>
+<nav class="bottom-nav" aria-label="Main navigation">
+<a href="#skills" data-page="skills" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 20v-6h4v6M10 20V9h4v11M16 20V4h4v16"/></svg><span>Skill Levels</span></a>
+<a href="#stats" data-page="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 4v16h17M7 15l4-5 4 3 5-7"/></svg><span>Stats</span></a>
+<a href="#queue" data-page="queue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg><span>Queue</span></a>
+</nav>
 <dialog id="edit-dialog"><form id="edit-form"><div class="dialog-heading"><h2>Edit name</h2><button type="button" id="close" aria-label="Close">×</button></div><label for="edit-name">Name</label><input id="edit-name" maxlength="60" required><label for="edit-tier">Tier</label><select id="edit-tier"><option value="high">High</option><option value="mid">Mid</option><option value="newer">Newer</option><option value="unsorted">Unsorted</option></select><div class="dialog-actions"><button type="button" id="delete">Remove name</button><button class="primary">Save changes</button></div></form></dialog>
 <script src="app.js"></script>
+<script src="navigation.js"></script>
 </body></html>
