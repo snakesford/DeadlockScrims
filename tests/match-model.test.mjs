@@ -91,3 +91,19 @@ test('leaving frees claims, allows rejoining, transfers host, and closes an empt
  assert.deepEqual(empty.players,{});
  assert.throws(()=>leaveMatch(state,'outsider'),/Join/);
 });
+
+test('profile heroes load on creation and joining without claiming match heroes', () => {
+ const profile={favoriteHeroes:['Haze','Abrams'],favoriteHeroPriorities:{Haze:2,Abrams:1}};
+ const host=newPlayer('Alice','0',profile);
+ assert.deepEqual(host.roster,{'0':{hero:'Haze',priority:2},'1':{hero:'Abrams',priority:1}});
+ assert.equal(host.wins,0);
+ const match={owner:'a',allowDuplicates:false,players:{a:host},slots:{'0':'a'}};
+ const joined=joinMatch(match,'b','Bob',profile);
+ assert.deepEqual(joined.players.b.roster,host.roster);
+ assert.equal(joined.players.b.hero,'');
+ assert.equal(joined.claims,undefined);
+ const won=changePlayer(joined,'a','b',{wins:2});
+ assert.equal(won.players.b.wins,2);
+ assert.throws(()=>changePlayer(joined,'a','b',{wins:-1}),/win count/);
+ assert.throws(()=>changePlayer(joined,'a','b',{wins:1.5}),/win count/);
+});

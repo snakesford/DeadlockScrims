@@ -108,3 +108,5 @@ Every joined player can **Leave match**, freeing their slot and hero. The host t
 The **Account** tab saves a display name and up to three favorite heroes with priorities on this device. The saved name prefills match creation/joining and saving it updates your name in an active lobby. Account favorites are separate from the hero you select for a match.
 
 **Skill Levels** is available only while you are a member of an open match. Leaving, being booted, or closing the match hides the tab and redirects an open skill board to Match. Live total and per-tier player counts appear in Match instead of Stats.
+
+Match cards display the player’s Account hero roster with priorities, match wins, name, skill level, team, match hero, and ready state. Favorites are copied on creation/join and Account hero changes sync to an active match. Wins start at zero for each new match membership and can be updated by the player or host.

@@ -176,3 +176,22 @@ test('members may leave and rejoin; host departure transfers ownership and last 
  assert.equal(closed.players,undefined);
  await assertFails(set(ref(db('bob'),path),transferred));
 });
+
+test('hero rosters and wins sync without allowing edits to other players', async () => {
+ const roster={'0':{hero:'Haze',priority:2},'1':{hero:'Abrams',priority:1}};
+ await assertSucceeds(update(ref(db('bob'),`${path}/players/bob`),{roster,wins:3}));
+ const state=(await get(ref(db('alice'),path))).val();
+ assert.equal(state.players.bob.roster[0].hero,'Haze');
+ assert.equal(state.players.bob.wins,3);
+ await assertSucceeds(set(ref(db('eve'),path),joinMatch(state,'eve','Eve',{favoriteHeroes:['Haze']})));
+ await assertFails(update(ref(db('eve'),`${path}/players/bob`),{wins:4}));
+ await assertFails(set(ref(db('eve'),`${path}/players/bob/roster/0/hero`),'Abrams'));
+ await assertFails(remove(ref(db('eve'),`${path}/players/bob/roster`)));
+ await assertFails(update(ref(db('bob'),`${path}/players/bob`),{wins:-1}));
+ await assertFails(update(ref(db('bob'),`${path}/players/bob`),{wins:0.5}));
+ await assertFails(set(ref(db('bob'),`${path}/players/bob/roster/3`),{hero:'Haze',priority:0}));
+ await assertFails(set(ref(db('bob'),`${path}/players/bob/roster/0`),{hero:'Fake hero',priority:0}));
+ await assertFails(set(ref(db('bob'),`${path}/players/bob/roster/0/priority`),3));
+ await assertSucceeds(update(ref(db('alice'),`${path}/players/bob`),{wins:4}));
+ await assertSucceeds(remove(ref(db('bob'),`${path}/players/bob/roster`)));
+});

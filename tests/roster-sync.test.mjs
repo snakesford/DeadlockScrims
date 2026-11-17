@@ -49,7 +49,13 @@ test('multiplayer sync works with the roster script in a separate scope', () => 
   assert.equal(element('#match-close').hidden,false);
   assert.equal(element('#match-leave').hidden,true);
   assert.equal(element('#match-close').disabled,false);
-  vm.runInContext("current.players={guest:{name:'Guest',tier:'mid',hero:'',team:'unassigned',ready:false}}; renderMatch()",context);
+  vm.runInContext("current.players={guest:{name:'Guest',tier:'mid',hero:'',team:'unassigned',ready:false,wins:3,roster:{'0':{hero:'Haze',priority:2}}}}; renderMatch()",context);
+  const fields=element('#match-players').children[0].children[1];
+  assert.equal(fields.className,'player-stat-fields');
+  assert.equal(fields.children[0].children[1].children[1].textContent,3);
+  const heroes=fields.children[1].children[1];
+  assert.equal(heroes.children[0].title,'Haze');
+  assert.equal(heroes.children[0].children[1].textContent,'Prio 2');
   let rank=element('#match-players').children[0].children[0].children[1];
   assert.equal(rank.value,'mid');
   assert.equal(element('#match-counts').children[0].children[1].textContent,1);

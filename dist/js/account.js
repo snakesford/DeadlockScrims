@@ -17,7 +17,7 @@ function saveAccount(message){
 function renderAccount(){
   document.querySelector('#account-name').value=account.name;
   const list=document.querySelector('#account-heroes');list.replaceChildren();
-  for(const name of account.favoriteHeroes){
+  for(const name of [...account.favoriteHeroes].sort((a,b)=>(account.favoriteHeroPriorities[b]||0)-(account.favoriteHeroPriorities[a]||0))){
     const hero=heroCatalog.find(hero=>hero.name===name);
     const card=document.createElement('figure');
     const image=document.createElement('img');image.src=hero.image;image.alt=name;
@@ -42,5 +42,8 @@ document.querySelector('#account-name').oninput=event=>event.target.setCustomVal
 document.querySelector('#account-select-heroes').onclick=()=>editHeroes(account,(heroes,priorities)=>{
   account.favoriteHeroes=heroes;account.favoriteHeroPriorities=priorities;
   saveAccount('Heroes saved.');renderAccount();
+  window.dispatchEvent(new CustomEvent('account:heroes-changed',{detail:window.getAccountProfile()}));
 });
 if(account.name)document.querySelector('#match-name').value=account.name;
+
+window.getAccountProfile=()=>structuredClone(account);

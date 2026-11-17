@@ -1,4 +1,4 @@
-import {changePlayer, newPlayer, joinMatch, bootPlayer, closeMatch, leaveMatch} from './match-model.mjs?v=leave-match-1';
+import {changePlayer, newPlayer, joinMatch, bootPlayer, closeMatch, leaveMatch, profileRoster} from './match-model.mjs?v=roster-cards-1';
 const $ = id => document.getElementById(id);
 const message = text => { $('match-status').textContent = text; if (current) $('status').textContent = text; };
 let sdk, db, uid, matchId, current, connected = false, busy = false, unsubscribe;
@@ -27,9 +27,15 @@ function watch(id) {
   history.replaceState(null, '', link); showPage();
   $('match-link').value = link.href;
   $('match-share').hidden = false;
+  let profileLoaded = false;
   unsubscribe = sdk.onValue(sdk.ref(db, `matches/${id}`), snapshot => {
     const wasJoined = !!current?.players?.[uid];
     current = snapshot.val(); renderMatch();
+    if (!profileLoaded && current?.players?.[uid] && !current.closed && connected && !busy) {
+      profileLoaded = true;
+      const roster = profileRoster(window.getAccountProfile?.() || {});
+      if (JSON.stringify(current.players[uid].roster || {}) !== JSON.stringify(roster)) updatePlayer(uid, {roster});
+    }
     if (wasJoined && current && !current.players?.[uid]) message('The host removed you from the lobby. You can rejoin using the invite link.');
     if (!current) message('This match does not exist.');
   }, error => { current = null; renderMatch(); message(`Unable to load match: ${error.message}`); });
@@ -109,6 +115,36 @@ function renderMatch() {
     }
     header.append(rank); card.append(header);
     const editable = connected && !busy && (id === uid || current.owner === uid);
+    const fields = document.createElement('div'); fields.className = 'player-stat-fields';
+    const winsSection = document.createElement('div'); winsSection.className = 'wins-section';
+    const winsLabel = document.createElement('span'); winsLabel.textContent = 'Wins';
+    const counter = document.createElement('div'); counter.className = 'wins-counter';
+    const wins = Number.isSafeInteger(player.wins) ? player.wins : 0;
+    const number = document.createElement('output'); number.textContent = wins;
+    number.setAttribute('aria-label', `Wins for ${player.name}`);
+    const up = document.createElement('button'); up.textContent = '↑'; up.setAttribute('aria-label', `Add a win for ${player.name}`);
+    const down = document.createElement('button'); down.textContent = '↓'; down.setAttribute('aria-label', `Remove a win for ${player.name}`);
+    up.disabled = !editable || wins === Number.MAX_SAFE_INTEGER; down.disabled = !editable || wins === 0;
+    const adjustWins = amount => updateMatch(value => changePlayer(value, uid, id, {wins: Math.max(0, (value.players[id]?.wins || 0) + amount)}));
+    up.onclick = () => adjustWins(1); down.onclick = () => adjustWins(-1);
+    counter.append(up, number, down); winsSection.append(winsLabel, counter);
+    const rosterSection = document.createElement('div'); rosterSection.className = 'character-stat';
+    const rosterLabel = document.createElement('span'); rosterLabel.textContent = 'Roster';
+    const heroes = document.createElement('ul'); heroes.className = 'favorite-heroes';
+    for (const entry of Object.values(player.roster || {}).sort((a, b) => (b.priority || 0) - (a.priority || 0))) {
+      const hero = heroCatalog.find(hero => hero.name === entry.hero);
+      const item = document.createElement('li'); item.className = 'stats-hero'; item.title = entry.hero;
+      const portrait = document.createElement('div'); portrait.className = 'stats-hero-portrait';
+      if (hero) {
+        const image = document.createElement('img'); image.src = hero.image; image.alt = hero.name; image.loading = 'lazy'; portrait.append(image);
+      } else { const label = document.createElement('span'); label.textContent = entry.hero; portrait.append(label); }
+      const marker = document.createElement('span'); marker.className = 'stats-hero-priority'; marker.textContent = '▲'.repeat(entry.priority || 0);
+      marker.setAttribute('aria-label', `Priority ${entry.priority || 0}`); portrait.append(marker);
+      const caption = document.createElement('span'); caption.className = 'stats-hero-caption'; caption.textContent = `Prio ${entry.priority || 0}`;
+      item.append(portrait, caption); heroes.append(item);
+    }
+    if (!heroes.children.length) { const empty = document.createElement('li'); empty.className = 'heroes-empty'; empty.textContent = 'No heroes selected'; heroes.append(empty); }
+    rosterSection.append(rosterLabel, heroes); fields.append(winsSection, rosterSection); card.append(fields);
     function select(label, values, value, field) {
       const wrapper = document.createElement('label'); wrapper.textContent = label;
       const input = document.createElement('select'); input.disabled = !editable;
@@ -119,7 +155,6 @@ function renderMatch() {
       }
       input.value = value; input.onchange = () => updatePlayer(id, {[field]: input.value}); wrapper.append(input); card.append(wrapper);
     }
-    select('Match hero', [['', 'Choose a hero…'], ...heroCatalog.map(h => [h.name, h.name])], player.hero, 'hero');
     select('Team', [['unassigned', 'Unassigned'], ['amber', 'Amber'], ['sapphire', 'Sapphire']], player.team, 'team');
     const ready = document.createElement('button'); ready.className = 'match-ready'; ready.textContent = player.ready ? '✓ Ready' : 'Not ready'; ready.disabled = !editable;
     ready.setAttribute('aria-pressed', String(player.ready)); ready.onclick = () => updatePlayer(id, {ready: !player.ready}); card.append(ready);
@@ -134,6 +169,11 @@ function renderMatch() {
     list.append(card);
   }
 }
+window.addEventListener('account:heroes-changed', async event => {
+  if (!current?.players?.[uid] || current.closed) return;
+  const saved = await updatePlayer(uid, {roster: profileRoster(event.detail)});
+  if (!saved) $('account-status').textContent = 'Heroes saved on this device. Reconnect and save again to update the match.';
+});
 window.addEventListener('account:name-changed', async event => {
   if (!current?.players?.[uid] || current.closed) return;
   const saved = await updatePlayer(uid, {name: event.detail.name});
@@ -154,14 +194,14 @@ $('match-create').onclick = () => action(async () => {
   const lobbyName = $('lobby-name').value.trim();
   if (lobbyName.length > 60) throw new Error('Lobby name must be 60 characters or fewer.');
   const reference = sdk.push(sdk.ref(db, 'matches'));
-  await sdk.set(reference, {...(lobbyName ? {name: lobbyName} : {}), owner: uid, slots: {'0': uid}, allowDuplicates: $('match-duplicates').checked, players: {[uid]: newPlayer(name)}});
+  await sdk.set(reference, {...(lobbyName ? {name: lobbyName} : {}), owner: uid, slots: {'0': uid}, allowDuplicates: $('match-duplicates').checked, players: {[uid]: newPlayer(name, '0', window.getAccountProfile?.() || {})}});
   watch(reference.key);
 });
 $('match-join').onclick = () => action(async () => {
   const name = playerName();
   let conflict;
   const result = await sdk.runTransaction(sdk.ref(db, `matches/${requestedId}`), value => {
-    try { return joinMatch(value, uid, name); }
+    try { return joinMatch(value, uid, name, window.getAccountProfile?.() || {}); }
     catch (error) { conflict = error; return undefined; }
   }, {applyLocally: false});
   if (conflict) throw conflict;

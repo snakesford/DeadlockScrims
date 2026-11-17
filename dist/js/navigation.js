@@ -118,7 +118,7 @@ function renderStats(){
     counter.append(up,number,down);winsSection.append(winsLabel,counter);
     const characterSection=document.createElement('div');characterSection.className='character-stat';
     const characterLabel=document.createElement('span');characterLabel.textContent='Roster';
-    const favorites=favoriteHeroes(person);const list=document.createElement('ul');list.className='favorite-heroes';
+    const favorites=favoriteHeroes(person).sort((a,b)=>(person.favoriteHeroPriorities?.[b]||0)-(person.favoriteHeroPriorities?.[a]||0));const list=document.createElement('ul');list.className='favorite-heroes';
     for(const name of favorites){
       const hero=heroCatalog.find(hero=>hero.name.toLowerCase()===name.toLowerCase());
       const rawPriority=person.favoriteHeroPriorities?.[name];

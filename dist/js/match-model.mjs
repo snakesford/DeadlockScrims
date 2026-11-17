@@ -6,9 +6,10 @@ export function changePlayer(match, actor, target, patch) {
   const next = structuredClone(match);
   const player = next.players[target];
   for (const field of Object.keys(patch)) {
-    if (!['name', 'hero', 'team', 'ready', 'tier'].includes(field)) throw new Error('Invalid player field.');
+    if (!['name', 'hero', 'team', 'ready', 'tier', 'roster', 'wins'].includes(field)) throw new Error('Invalid player field.');
   }
   if ('tier' in patch && !['unsorted', 'high', 'mid', 'newer'].includes(patch.tier)) throw new Error('Invalid skill level.');
+  if ('wins' in patch && (!Number.isSafeInteger(patch.wins) || patch.wins < 0)) throw new Error('Invalid win count.');
   Object.assign(player, patch);
   if ('hero' in patch && patch.hero !== match.players[target].hero) player.ready = false;
   next.claims = {};
@@ -19,11 +20,14 @@ export function changePlayer(match, actor, target, patch) {
   }
   return next;
 }
-export function newPlayer(name, slot = '0') {
-  return {slot, name: name.trim(), hero: '', team: 'unassigned', ready: false, tier: 'unsorted'};
+export function profileRoster(profile = {}) {
+  return Object.fromEntries([...new Set(profile.favoriteHeroes || [])].slice(0, 3).map((hero, index) => [String(index), {hero, priority: [0, 1, 2].includes(profile.favoriteHeroPriorities?.[hero]) ? profile.favoriteHeroPriorities[hero] : 0}]));
+}
+export function newPlayer(name, slot = '0', profile = {}) {
+  return {slot, name: name.trim(), hero: '', team: 'unassigned', ready: false, tier: 'unsorted', wins: 0, roster: profileRoster(profile)};
 }
 
-export function joinMatch(match, uid, name) {
+export function joinMatch(match, uid, name, profile = {}) {
   if (!match) return match;
   if (match.closed) throw new Error('This match is closed.');
   if (match.players?.[uid]) return match;
@@ -31,7 +35,7 @@ export function joinMatch(match, uid, name) {
   if (slot === undefined) throw new Error('This match is full (12 players).');
   const next = structuredClone(match);
   next.slots[slot] = uid;
-  next.players[uid] = newPlayer(name, slot);
+  next.players[uid] = newPlayer(name, slot, profile);
   return next;
 }
 

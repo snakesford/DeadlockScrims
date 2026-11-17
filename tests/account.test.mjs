@@ -7,7 +7,7 @@ function load(storage){
  const nodes=new Map();
  const node=id=>{if(!nodes.has(id))nodes.set(id,{value:'',children:[],append(...children){this.children.push(...children);},replaceChildren(){this.children=[];},setCustomValidity(){},reportValidity(){}});return nodes.get(id);};
  const events=[];
- const context=vm.createContext({document:{querySelector:node,createElement:()=>node(Symbol())},localStorage:{getItem:()=>storage.value||null,setItem:(key,value)=>storage.value=value},heroCatalog:[{name:'Haze',image:'haze.png'}],window:{dispatchEvent:event=>events.push(event)},CustomEvent:class{constructor(type,{detail}){this.type=type;this.detail=detail;}},editHeroes:(person,save)=>save(['Haze'],{Haze:2})});
+ const context=vm.createContext({document:{querySelector:node,createElement:()=>node(Symbol())},localStorage:{getItem:()=>storage.value||null,setItem:(key,value)=>storage.value=value},structuredClone,heroCatalog:[{name:'Haze',image:'haze.png'}],window:{dispatchEvent:event=>events.push(event)},CustomEvent:class{constructor(type,{detail}){this.type=type;this.detail=detail;}},editHeroes:(person,save)=>save(['Haze'],{Haze:2})});
  vm.runInContext(source,context);return {node,context,events};
 }
 test('account name and hero preferences save and restore without changing the roster',()=>{

@@ -69,3 +69,10 @@
 @media(max-width:700px){.account-layout{grid-template-columns:1fr}.bottom-nav{width:calc(100% - 24px);justify-content:space-around}.bottom-nav a{flex-direction:column;gap:5px;padding:9px 6px;font-size:9px;letter-spacing:0}.bottom-nav svg{width:16px;height:16px}}
 
 #match-counts{margin-bottom:24px}
+
+#match-players .match-player-header{padding-bottom:14px;border-bottom:1px solid var(--line)}
+#match-players .player-stat-fields{display:grid;grid-template-columns:62px minmax(0,1fr);gap:16px}
+#match-players .stats-hero-priority{color:var(--mint);text-shadow:0 1px 2px #000;font-size:15px}
+
+#match-counts .stat-card{background:var(--tier-color);border:1px solid var(--tier-color)}
+#match-counts .stat-card h2,#match-counts .stat-card strong,#match-counts .stat-card>span{color:#252b2b}

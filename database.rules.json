@@ -20,7 +20,7 @@
           ".validate": "newData.hasChildren()",
           "$uid": {
             ".read": "auth != null",
-            ".validate": "newData.hasChildren(['name','hero','team','ready','slot']) && ((!data.exists() && $uid == auth.uid) || (data.exists() && (auth.uid == $uid || root.child('matches').child($match).child('owner').val() == auth.uid || (newData.child('name').val() == data.child('name').val() && newData.child('hero').val() == data.child('hero').val() && newData.child('team').val() == data.child('team').val() && newData.child('ready').val() == data.child('ready').val() && newData.child('tier').val() == data.child('tier').val())))) && newData.parent().parent().child('slots').child(newData.child('slot').val()).val() == $uid",
+            ".validate": "newData.hasChildren(['name','hero','team','ready','slot']) && ((!data.exists() && $uid == auth.uid) || (data.exists() && (auth.uid == $uid || root.child('matches').child($match).child('owner').val() == auth.uid || (newData.child('name').val() == data.child('name').val() && newData.child('hero').val() == data.child('hero').val() && newData.child('team').val() == data.child('team').val() && newData.child('ready').val() == data.child('ready').val() && newData.child('tier').val() == data.child('tier').val() && newData.child('wins').val() == data.child('wins').val() && newData.child('roster').child('0').child('hero').val() == data.child('roster').child('0').child('hero').val() && newData.child('roster').child('0').child('priority').val() == data.child('roster').child('0').child('priority').val() && newData.child('roster').child('1').child('hero').val() == data.child('roster').child('1').child('hero').val() && newData.child('roster').child('1').child('priority').val() == data.child('roster').child('1').child('priority').val() && newData.child('roster').child('2').child('hero').val() == data.child('roster').child('2').child('hero').val() && newData.child('roster').child('2').child('priority').val() == data.child('roster').child('2').child('priority').val())))) && newData.parent().parent().child('slots').child(newData.child('slot').val()).val() == $uid",
             "name": {
               ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 60"
             },
@@ -41,6 +41,23 @@
             },
             "tier": {
               ".validate": "newData.val() == 'unsorted' || newData.val() == 'high' || newData.val() == 'mid' || newData.val() == 'newer'"
+            },
+            "wins": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 9007199254740991 && newData.val() % 1 == 0"
+            },
+            "roster": {
+              "$index": {
+                ".validate": "$index.matches(/^[012]$/) && newData.hasChildren(['hero','priority'])",
+                "hero": {
+                  ".validate": "newData.isString() && (newData.val() == \"\" || newData.val() == \"Abrams\" || newData.val() == \"Apollo\" || newData.val() == \"Baba\" || newData.val() == \"Bebop\" || newData.val() == \"Billy\" || newData.val() == \"Calico\" || newData.val() == \"Celeste\" || newData.val() == \"Deadman Danny\" || newData.val() == \"The Doorman\" || newData.val() == \"Drifter\" || newData.val() == \"Dynamo\" || newData.val() == \"Graves\" || newData.val() == \"Grey Talon\" || newData.val() == \"Haze\" || newData.val() == \"Holliday\" || newData.val() == \"Infernus\" || newData.val() == \"Ivy\" || newData.val() == \"Kelvin\" || newData.val() == \"Lady Geist\" || newData.val() == \"Lash\" || newData.val() == \"McGinnis\" || newData.val() == \"Mina\" || newData.val() == \"Mirage\" || newData.val() == \"Mo & Krill\" || newData.val() == \"Nurse Harrow\" || newData.val() == \"Paige\" || newData.val() == \"Paradox\" || newData.val() == \"Pocket\" || newData.val() == \"Rat King\" || newData.val() == \"Rem\" || newData.val() == \"Seven\" || newData.val() == \"Shiv\" || newData.val() == \"Silver\" || newData.val() == \"Sinclair\" || newData.val() == \"Solomon\" || newData.val() == \"Venator\" || newData.val() == \"Victor\" || newData.val() == \"Vindicta\" || newData.val() == \"Violet\" || newData.val() == \"Viscous\" || newData.val() == \"Vyper\" || newData.val() == \"Warden\" || newData.val() == \"Wraith\" || newData.val() == \"Yamato\") && newData.val() != ''"
+                },
+                "priority": {
+                  ".validate": "newData.isNumber() && (newData.val() == 0 || newData.val() == 1 || newData.val() == 2)"
+                },
+                "$other": {
+                  ".validate": false
+                }
+              }
             }
           }
         },
