@@ -6,6 +6,52 @@ function saveQueue(message){
   catch { document.querySelector('#queue-status').textContent='Queue changes could not be saved in this browser.'; }
   renderQueue();
 }
+function favoriteHeroes(person){
+  const values=Array.isArray(person.favoriteHeroes)?person.favoriteHeroes:[person.favoriteCharacter];
+  const seen=new Set();
+  return values.filter(value=>typeof value==='string').map(value=>value.trim()).filter(value=>{const key=value.toLowerCase();if(!value||seen.has(key))return false;seen.add(key);return true;}).slice(0,3);
+}
+const heroesDialog=document.querySelector('#heroes-dialog');
+let heroesPlayerId=null;
+let selectedHeroes=[];
+function updateHeroSelection(){
+  document.querySelectorAll('.hero-choice').forEach(button=>{
+    const selected=selectedHeroes.includes(button.dataset.hero);
+    button.setAttribute('aria-pressed',String(selected));
+    button.disabled=!selected&&selectedHeroes.length>=3;
+  });
+  document.querySelector('#heroes-selection-status').textContent=`${selectedHeroes.length} of 3 selected`;
+  const selected=document.querySelector('#heroes-selected');selected.replaceChildren();
+  for(const name of selectedHeroes){
+    const remove=document.createElement('button');remove.type='button';remove.textContent=name+' ×';remove.setAttribute('aria-label',`Remove ${name} from favorites`);
+    remove.onclick=()=>{selectedHeroes=selectedHeroes.filter(hero=>hero!==name);updateHeroSelection();};selected.append(remove);
+  }
+}
+function editHeroes(person){
+  heroesPlayerId=person.id;
+  selectedHeroes=favoriteHeroes(person).map(name=>heroCatalog.find(hero=>hero.name.toLowerCase()===name.toLowerCase())?.name||name);
+  const grid=document.querySelector('#heroes-grid');grid.replaceChildren();
+  for(const hero of heroCatalog){
+    const button=document.createElement('button');button.type='button';button.className='hero-choice';button.dataset.hero=hero.name;button.setAttribute('aria-label',hero.name);
+    const image=document.createElement('img');image.src=hero.image;image.alt='';image.loading='lazy';image.width=120;image.height=120;
+    const label=document.createElement('span');label.textContent=hero.name;
+    button.append(image,label);button.onclick=()=>{
+      if(selectedHeroes.includes(hero.name))selectedHeroes=selectedHeroes.filter(name=>name!==hero.name);
+      else if(selectedHeroes.length<3)selectedHeroes.push(hero.name);
+      updateHeroSelection();
+    };grid.append(button);
+  }
+  updateHeroSelection();heroesDialog.showModal();
+}
+document.querySelector('#heroes-close').onclick=()=>heroesDialog.close();
+document.querySelector('#heroes-cancel').onclick=()=>heroesDialog.close();
+document.querySelector('#heroes-form').onsubmit=event=>{
+  event.preventDefault();const person=names.find(person=>person.id===heroesPlayerId);if(!person){heroesDialog.close();return;}
+  person.favoriteHeroes=[...selectedHeroes];
+  delete person.favoriteCharacter;
+  save(`Favorites updated for ${person.name}.`);heroesDialog.close();renderStats();
+  document.querySelector('#stats-status').textContent=storageAvailable?`Favorites saved for ${person.name}.`:'Browser storage is unavailable. These favorites will last only until you close this page.';
+};
 function renderStats(){
   const cards=document.querySelector('#stats-cards');cards.replaceChildren();
   for(const tier of [{id:'all',name:'Total players',tint:'#edf0e6'},...tiers]){
@@ -43,9 +89,12 @@ function renderStats(){
     up.onclick=()=>changeWins(1);down.onclick=()=>changeWins(-1);updateCounter();
     counter.append(up,number,down);winsSection.append(winsLabel,counter);
     const characterSection=document.createElement('div');characterSection.className='character-stat';
-    const characterLabel=document.createElement('span');characterLabel.textContent='Favorite character';
-    const character=document.createElement('strong');character.textContent=typeof person.favoriteCharacter==='string'&&person.favoriteCharacter.trim()?person.favoriteCharacter:'Not set';
-    characterSection.append(characterLabel,character);fields.append(winsSection,characterSection);
+    const characterLabel=document.createElement('span');characterLabel.textContent='Favorite heroes';
+    const favorites=favoriteHeroes(person);const list=document.createElement('ul');list.className='favorite-heroes';
+    for(const hero of favorites){const item=document.createElement('li');item.textContent=hero;list.append(item);}
+    if(!favorites.length){const empty=document.createElement('li');empty.className='heroes-empty';empty.textContent='No favorites yet';list.append(empty);}
+    const edit=document.createElement('button');edit.type='button';edit.className='edit-heroes';edit.textContent=favorites.length?'Edit favorites':'＋ Add favorites';edit.setAttribute('aria-label',`Edit favorite heroes for ${person.name}`);edit.onclick=()=>editHeroes(person);
+    characterSection.append(characterLabel,list,edit);fields.append(winsSection,characterSection);
     form.append(heading,fields);players.append(form);
   }
 }

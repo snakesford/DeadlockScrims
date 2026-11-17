@@ -33,6 +33,15 @@
 <a href="#queue" data-page="queue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg><span>Queue</span></a>
 </nav>
 <dialog id="edit-dialog"><form id="edit-form"><div class="dialog-heading"><h2>Edit name</h2><button type="button" id="close" aria-label="Close">×</button></div><label for="edit-name">Name</label><input id="edit-name" maxlength="60" required><label for="edit-tier">Tier</label><select id="edit-tier"><option value="high">High</option><option value="mid">Mid</option><option value="newer">Newer</option><option value="unsorted">Unsorted</option></select><div class="dialog-actions"><button type="button" id="delete">Remove name</button><button class="primary">Save changes</button></div></form></dialog>
+<dialog id="heroes-dialog" aria-labelledby="heroes-title">
+<form id="heroes-form">
+<div class="dialog-heading"><h2 id="heroes-title">Select 3 heroes</h2><button type="button" id="heroes-close" aria-label="Close">×</button></div>
+<div id="heroes-selected" aria-label="Selected favorites"></div>
+<p id="heroes-selection-status" role="status" aria-live="polite"></p>
+<div id="heroes-grid" aria-label="Heroes, sorted alphabetically"></div>
+<div class="dialog-actions"><button type="button" id="heroes-cancel">Cancel</button><button class="primary">Save favorites</button></div>
+</form></dialog>
 <script src="app.js"></script>
+<script src="heroes.js"></script>
 <script src="navigation.js"></script>
 </body></html>
