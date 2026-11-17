@@ -19,7 +19,6 @@ let previewHero=null;
 function previewSelectionHero(hero){
   previewHero=hero;
   document.querySelector("#hero-render").src=hero.render;
-  document.querySelector(".selection-backdrop").style.backgroundImage=`url("${hero.background}")`;
   document.querySelector("#hero-preview-name").textContent=hero.name;
   updatePreviewPriority();
 }
