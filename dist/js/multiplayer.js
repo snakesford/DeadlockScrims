@@ -74,6 +74,45 @@ function renderMatchCounts() {
     card.append(title, number, caption); container.append(card);
   }
 }
+function renderMatchTeams() {
+  const container = $('match-teams');
+  container.replaceChildren();
+  container.hidden = !current || !!current.closed;
+  if (container.hidden) return;
+  for (const [team, name] of [['amber', 'Archmother'], ['sapphire', 'Hidden King']]) {
+    const panel = document.createElement('section'); panel.className = `match-team match-team-${team}`;
+    const players = Object.values(current.players || {}).filter(player => player.team === team)
+      .sort((a, b) => Number(a.slot) - Number(b.slot));
+    const heading = document.createElement('h2'); heading.textContent = `${name} · ${players.length}`;
+    panel.append(heading);
+    const list = document.createElement('ul'); list.className = 'match-team-players';
+    for (let slot = 0; slot < Math.max(6, players.length); slot++) {
+      const player = players[slot];
+      const row = document.createElement('li'); row.className = 'match-team-player';
+      if (!player) {
+        row.classList.add('match-team-empty');
+        row.setAttribute('aria-label', `${name} empty player slot ${slot + 1}`);
+        const placeholder = document.createElement('div'); placeholder.className = 'match-team-hero';
+        row.append(placeholder); list.append(row); continue;
+      }
+      const top = Object.values(player.roster || {}).sort((a, b) => (b.priority || 0) - (a.priority || 0))[0];
+      const hero = heroCatalog.find(hero => hero.name === top?.hero);
+      const card = document.createElement('div'); card.className = 'match-team-hero';
+      if (hero) {
+        const portrait = document.createElement('img'); portrait.src = hero.image;
+        portrait.alt = hero.name; portrait.loading = 'lazy'; card.append(portrait);
+        const priority = document.createElement('span'); priority.className = 'match-team-priority';
+        priority.textContent = '▲'.repeat(top.priority || 0);
+        priority.setAttribute('aria-label', `Priority ${top.priority || 0}`);
+        card.append(priority);
+      }
+      row.append(card);
+      const label = document.createElement('strong'); label.textContent = player.name;
+      row.append(label); list.append(row);
+    }
+    panel.append(list); container.append(panel);
+  }
+}
 function renderMatch() {
   controls();
   $('match-close').hidden = !current || current.owner !== uid || !!current.closed;
@@ -89,6 +128,7 @@ function renderMatch() {
     update: updatePlayer
   } : null}));
   renderMatchCounts();
+  renderMatchTeams();
   $('match-title').textContent = current?.name || 'MATCH LOBBY';
   const list = $('match-players'); list.replaceChildren();
   $('match-details').textContent = current ? `Match ${matchId} · ${current.allowDuplicates ? 'Duplicate heroes allowed' : 'Unique heroes only'}${current.owner === uid ? ' · You are the administrator' : ''}` : '';
@@ -155,7 +195,7 @@ function renderMatch() {
       }
       input.value = value; input.onchange = () => updatePlayer(id, {[field]: input.value}); wrapper.append(input); card.append(wrapper);
     }
-    select('Team', [['unassigned', 'Unassigned'], ['amber', 'Amber'], ['sapphire', 'Sapphire']], player.team, 'team');
+    select('Team', [['unassigned', 'Unassigned'], ['amber', 'Archmother'], ['sapphire', 'Hidden King']], player.team, 'team');
     const ready = document.createElement('button'); ready.className = 'match-ready'; ready.textContent = player.ready ? '✓ Ready' : 'Not ready'; ready.disabled = !editable;
     ready.setAttribute('aria-pressed', String(player.ready)); ready.onclick = () => updatePlayer(id, {ready: !player.ready}); card.append(ready);
     if (current.owner === uid && id !== uid) {
