@@ -1,4 +1,4 @@
-import {changePlayer, newPlayer, joinMatch, bootPlayer, closeMatch, leaveMatch, profileRoster} from './match-model.mjs?v=roster-cards-1';
+import {changePlayer, newPlayer, joinMatch, bootPlayer, closeMatch, leaveMatch, profileRoster, validateName} from './match-model.mjs?v=input-validation-1';
 const $ = id => document.getElementById(id);
 const message = text => { $('match-status').textContent = text; if (current) $('status').textContent = text; };
 let sdk, db, uid, matchId, current, connected = false, busy = false, unsubscribe;
@@ -17,9 +17,7 @@ async function action(work) {
   finally { busy = false; controls(); renderMatch(); }
 }
 function playerName() {
-  const name = $('match-name').value.trim();
-  if (!name || name.length > 60) throw new Error('Enter a name (1–60 characters).');
-  return name;
+  return validateName($('match-name').value);
 }
 function watch(id) {
   unsubscribe?.(); current = null; matchId = id; renderMatch();
@@ -230,8 +228,7 @@ $('match-leave').onclick = async () => {
 $('match-close').onclick = () => updateMatch(value => closeMatch(value, uid));
 $('match-create').onclick = () => action(async () => {
   const name = playerName();
-  const lobbyName = $('lobby-name').value.trim();
-  if (lobbyName.length > 60) throw new Error('Lobby name must be 60 characters or fewer.');
+  const lobbyName = validateName($('lobby-name').value, {optional: true});
   const reference = sdk.push(sdk.ref(db, 'matches'));
   await sdk.set(reference, {...(lobbyName ? {name: lobbyName} : {}), owner: uid, slots: {'0': uid}, allowDuplicates: false, players: {[uid]: newPlayer(name, '0', window.getAccountProfile?.() || {})}});
   watch(reference.key);

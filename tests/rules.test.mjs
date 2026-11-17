@@ -19,6 +19,19 @@ test('authenticated link reads, own join, denied listing and anonymous access',a
  await assertFails(set(ref(db('eve'),`${path}/players/other`),newPlayer('Other')));
  await assertFails(set(ref(db('eve'),'matches/zzzzzzzzzzzzzzzzzzzz/players/eve'),newPlayer('Eve')));
 });
+test('injection-like names are literal data; object inputs and extra fields are denied', async () => {
+ const name = "Robert'); DROP TABLE players;--";
+ await assertSucceeds(set(ref(db('bob'), `${path}/players/bob/name`), name));
+ const state = (await get(ref(db('alice'), path))).val();
+ assert.equal(state.players.bob.name, name);
+ assert.equal(state.players.alice.name, 'Alice');
+ assert.equal(state.owner, 'alice');
+ assert.throws(() => set(ref(db('bob'), `${path}/players/bob/name`), {$ne:null}), /invalid key/);
+ for (const invalid of [{query:'SELECT * FROM players'}, {'.sv':'timestamp'}, 123, '', 'x'.repeat(61)]) {
+   await assertFails(set(ref(db('bob'), `${path}/players/bob/name`), invalid));
+ }
+ await assertFails(update(ref(db('bob'), `${path}/players/bob`), {query:'DROP TABLE players'}));
+});
 test('own updates and owner override; no other edits, escalation or deletion',async () => {
  await assertSucceeds(update(ref(db('bob'),`${path}/players/bob`),{ready:true}));
  await assertFails(update(ref(db('bob'),`${path}/players/alice`),{ready:true}));

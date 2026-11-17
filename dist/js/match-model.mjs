@@ -1,3 +1,11 @@
+// Keep names as data: never interpret SQL, markup, or database paths in them.
+export function validateName(value, {optional = false} = {}) {
+  if (typeof value !== 'string') throw new Error('Name must be text.');
+  const name = value.trim();
+  if ((!optional && !name) || name.length > 60) throw new Error('Enter a name (1–60 characters).');
+  return name;
+}
+
 export function changePlayer(match, actor, target, patch) {
   if (!match || !match.players?.[actor]) throw new Error('Join the match first.');
   if (match.closed) throw new Error('This match is closed.');
@@ -11,6 +19,7 @@ export function changePlayer(match, actor, target, patch) {
   if ('tier' in patch && !['unsorted', 'high', 'mid', 'newer'].includes(patch.tier)) throw new Error('Invalid skill level.');
   if ('wins' in patch && (!Number.isSafeInteger(patch.wins) || patch.wins < 0)) throw new Error('Invalid win count.');
   Object.assign(player, patch);
+  if ('name' in patch) player.name = validateName(patch.name);
   if ('hero' in patch && patch.hero !== match.players[target].hero) player.ready = false;
   next.claims = {};
   for (const [uid, entry] of Object.entries(next.players)) {
@@ -24,7 +33,7 @@ export function profileRoster(profile = {}) {
   return Object.fromEntries([...new Set(profile.favoriteHeroes || [])].slice(0, 3).map((hero, index) => [String(index), {hero, priority: [0, 1, 2].includes(profile.favoriteHeroPriorities?.[hero]) ? profile.favoriteHeroPriorities[hero] : 0}]));
 }
 export function newPlayer(name, slot = '0', profile = {}) {
-  return {slot, name: name.trim(), hero: '', team: 'unassigned', ready: false, tier: 'unsorted', wins: 0, roster: profileRoster(profile)};
+  return {slot, name: validateName(name), hero: '', team: 'unassigned', ready: false, tier: 'unsorted', wins: 0, roster: profileRoster(profile)};
 }
 
 export function joinMatch(match, uid, name, profile = {}) {

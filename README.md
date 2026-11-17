@@ -65,6 +65,14 @@ are displayed in the lobby. No presence cleanup deletes selections.
 
 ## Data and security
 
+The app uses Firebase Realtime Database, not SQL. Player and lobby names are
+stored as string values, never assembled into executable queries or database
+paths. Client validation checks name types and lengths; Firebase rules enforce
+types, lengths, allowed fields, and permissions independently of the browser.
+User names are rendered with `textContent`. Do not add SQL keyword filters or
+strip apostrophes; if SQL storage is introduced, use parameterized queries.
+Injection regression tests cover literal SQL-like names and rejected object inputs.
+
 `matches/{pushId}` contains immutable `owner` and `allowDuplicates` settings,
 `players/{authUid}` records (`slot`, `name`, `hero`, `team`, `ready`), immutable
 `slots/{0..11}` ownership, and `claims/{hero}`

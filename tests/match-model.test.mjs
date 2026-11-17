@@ -2,6 +2,20 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {changePlayer, newPlayer, joinMatch, bootPlayer, closeMatch, leaveMatch} from '../dist/js/match-model.mjs';
 const fixture = () => ({owner: 'a', allowDuplicates: false, players: {a: newPlayer('Alice'), b: newPlayer('Bob')}});
+test('names remain literal data and invalid name shapes are rejected', () => {
+  for (const name of ["O'Brien", "Robert'); DROP TABLE players;--", '<img src=x onerror=alert(1)>']) {
+    assert.equal(newPlayer(name).name, name);
+    const original = fixture();
+    const changed = changePlayer(original, 'a', 'a', {name});
+    assert.equal(changed.players.a.name, name);
+    assert.deepEqual(changed.players.b, original.players.b);
+    assert.equal(original.players.a.name, 'Alice');
+  }
+  for (const name of [null, 123, {$ne: null}, ['Alice'], '', '   ', 'x'.repeat(61)]) {
+    assert.throws(() => newPlayer(name), /name|Name/);
+    assert.throws(() => changePlayer(fixture(), 'a', 'a', {name}), /name|Name/);
+  }
+});
 test('claims survive unrelated updates and reject a racing duplicate pick', () => {
   const first = changePlayer(fixture(), 'a', 'a', {hero: 'Abrams'});
   assert.throws(() => changePlayer(first, 'b', 'b', {hero: 'Abrams'}), /another player/);

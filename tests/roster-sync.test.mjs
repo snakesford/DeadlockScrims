@@ -55,7 +55,8 @@ test('multiplayer sync works with the roster script in a separate scope', () => 
   assert.equal(fields.children[0].children[1].children[1].textContent,3);
   const heroes=fields.children[1].children[1];
   assert.equal(heroes.children[0].title,'Haze');
-  assert.equal(heroes.children[0].children[1].textContent,'Prio 2');
+  assert.equal(heroes.children[0].children.length,1);
+  assert.equal(heroes.children[0].children[0].children.at(-1).textContent,'▲\n▲');
   let rank=element('#match-players').children[0].children[0].children[1];
   assert.equal(rank.value,'mid');
   assert.equal(element('#match-counts').children[0].children[1].textContent,1);
