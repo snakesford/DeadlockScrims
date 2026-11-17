@@ -1,7 +1,10 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {changePlayer, newPlayer, joinMatch, bootPlayer, closeMatch, leaveMatch} from '../dist/js/match-model.mjs';
+import {changePlayer, newPlayer, joinMatch, bootPlayer, closeMatch, leaveMatch, createMatchCode} from '../dist/js/match-model.mjs';
 const fixture = () => ({owner: 'a', allowDuplicates: false, players: {a: newPlayer('Alice'), b: newPlayer('Bob')}});
+test('match codes use only unambiguous letters and numbers and fit database IDs', () => {
+  for (let i = 0; i < 20; i++) assert.match(createMatchCode(), /^[A-HJ-NP-Z2-9]{20}$/);
+});
 test('names remain literal data and invalid name shapes are rejected', () => {
   for (const name of ["O'Brien", "Robert'); DROP TABLE players;--", '<img src=x onerror=alert(1)>']) {
     assert.equal(newPlayer(name).name, name);

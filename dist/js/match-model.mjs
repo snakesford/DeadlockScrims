@@ -1,4 +1,9 @@
 // Keep names as data: never interpret SQL, markup, or database paths in them.
+export function createMatchCode() {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from(crypto.getRandomValues(new Uint8Array(20)), byte => alphabet[byte % 32]).join('');
+}
+
 export function validateName(value, {optional = false} = {}) {
   if (typeof value !== 'string') throw new Error('Name must be text.');
   const name = value.trim();

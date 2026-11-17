@@ -44,7 +44,8 @@ Keep all project changes in this Git repository. Install dependencies here;
 
 Enter your player name and an optional lobby name (up to 60 characters) in **Match**, choose whether duplicate heroes are allowed, and
 click **Create match**. Each match has 12 player slots. Copy its invite URL. Other players open that URL, enter
-their names, and click **Join linked match**. The creator is the administrator and
+their names, and click **Join match**. Players can also paste the full URL into
+the **Invite link** field. Use **Copy link** to share it. The creator is the administrator and
 can edit anyone's entries; other players can edit only their own. Duplicate mode
 is fixed at creation. Hero changes clear ready status. Picks, team assignments,
 readiness and names update automatically on all connected screens.

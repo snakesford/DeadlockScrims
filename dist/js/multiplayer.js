@@ -1,12 +1,22 @@
-import {changePlayer, newPlayer, joinMatch, bootPlayer, closeMatch, leaveMatch, profileRoster, validateName} from './match-model.mjs?v=input-validation-1';
+import {changePlayer, newPlayer, joinMatch, bootPlayer, closeMatch, leaveMatch, profileRoster, validateName, createMatchCode} from './match-model.mjs?v=match-code-1';
 const $ = id => document.getElementById(id);
 const message = text => { $('match-status').textContent = text; if (current) $('status').textContent = text; };
 let sdk, db, uid, matchId, current, connected = false, busy = false, unsubscribe;
 let requestedId = new URL(location.href).searchParams.get('match');
 const validId = id => /^[A-Za-z0-9_-]{20,64}$/.test(id || '');
+function enteredMatchId() {
+  try {
+    const link = new URL(($('match-invite').value || '').trim());
+    if (!['https:', 'http:'].includes(link.protocol)) return null;
+    const id = link.searchParams.get('match');
+    return validId(id) ? id : null;
+  } catch { return null; }
+}
+$('match-invite').value = validId(requestedId) ? location.href : '';
+$('match-invite').oninput = controls;
 function controls() {
   $('match-create').disabled = !uid || !connected || busy;
-  $('match-join').disabled = !uid || !connected || busy || !validId(requestedId) || !!current?.closed;
+  $('match-join').disabled = !uid || !connected || busy || !validId(enteredMatchId());
 }
 async function action(work) {
   if (busy) return;
@@ -20,10 +30,11 @@ function playerName() {
   return validateName($('match-name').value);
 }
 function watch(id) {
-  unsubscribe?.(); current = null; matchId = id; renderMatch();
+  unsubscribe?.(); current = null; matchId = id; requestedId = id; renderMatch();
   const link = new URL(location.href); link.searchParams.set('match', id); link.hash = 'match';
   history.replaceState(null, '', link); showPage();
   $('match-link').value = link.href;
+  $('match-invite').value = link.href;
   $('match-share').hidden = false;
   let profileLoaded = false;
   unsubscribe = sdk.onValue(sdk.ref(db, `matches/${id}`), snapshot => {
@@ -92,11 +103,13 @@ function renderMatchTeams() {
         row.classList.add('match-team-empty');
         row.setAttribute('aria-label', `${name} empty player slot ${slot + 1}`);
         const placeholder = document.createElement('div'); placeholder.className = 'match-team-hero';
-        row.append(placeholder); list.append(row); continue;
+        const spacer = document.createElement('strong'); spacer.setAttribute('aria-hidden', 'true');
+        row.append(spacer, placeholder); list.append(row); continue;
       }
       const top = Object.values(player.roster || {}).sort((a, b) => (b.priority || 0) - (a.priority || 0))[0];
       const hero = heroCatalog.find(hero => hero.name === top?.hero);
       const card = document.createElement('div'); card.className = 'match-team-hero';
+      if (top?.priority > 0) card.classList.add('has-priority');
       if (hero) {
         const portrait = document.createElement('img'); portrait.src = hero.image;
         portrait.alt = hero.name; portrait.loading = 'lazy'; card.append(portrait);
@@ -105,9 +118,8 @@ function renderMatchTeams() {
         priority.setAttribute('aria-label', `Priority ${top.priority || 0}`);
         card.append(priority);
       }
-      row.append(card);
       const label = document.createElement('strong'); label.textContent = player.name;
-      row.append(label); list.append(row);
+      row.append(label, card); list.append(row);
     }
     panel.append(list); container.append(panel);
   }
@@ -175,6 +187,7 @@ function renderMatch() {
       const hero = heroCatalog.find(hero => hero.name === entry.hero);
       const item = document.createElement('li'); item.className = 'stats-hero'; item.title = entry.hero;
       const portrait = document.createElement('div'); portrait.className = 'stats-hero-portrait';
+      if (entry.priority > 0) portrait.classList.add('has-priority');
       if (hero) {
         const image = document.createElement('img'); image.src = hero.image; image.alt = hero.name; image.loading = 'lazy'; portrait.append(image);
       } else { const label = document.createElement('span'); label.textContent = entry.hero; portrait.append(label); }
@@ -229,20 +242,24 @@ $('match-close').onclick = () => updateMatch(value => closeMatch(value, uid));
 $('match-create').onclick = () => action(async () => {
   const name = playerName();
   const lobbyName = validateName($('lobby-name').value, {optional: true});
-  const reference = sdk.push(sdk.ref(db, 'matches'));
-  await sdk.set(reference, {...(lobbyName ? {name: lobbyName} : {}), owner: uid, slots: {'0': uid}, allowDuplicates: false, players: {[uid]: newPlayer(name, '0', window.getAccountProfile?.() || {})}});
+  const reference = sdk.ref(db, `matches/${createMatchCode()}`);
+  const match = {...(lobbyName ? {name: lobbyName} : {}), owner: uid, slots: {'0': uid}, allowDuplicates: false, players: {[uid]: newPlayer(name, '0', window.getAccountProfile?.() || {})}};
+  const created = await sdk.runTransaction(reference, value => value === null ? match : undefined, {applyLocally: false});
+  if (!created.committed) throw new Error('This code is already in use. Please create the match again.');
   watch(reference.key);
 });
 $('match-join').onclick = () => action(async () => {
   const name = playerName();
+  const code = enteredMatchId();
+  if (!validId(code)) throw new Error('Paste a valid match invite link.');
   let conflict;
-  const result = await sdk.runTransaction(sdk.ref(db, `matches/${requestedId}`), value => {
-    try { return joinMatch(value, uid, name, window.getAccountProfile?.() || {}); }
+  const result = await sdk.runTransaction(sdk.ref(db, `matches/${code}`), value => {
+    try { conflict = undefined; return joinMatch(value, uid, name, window.getAccountProfile?.() || {}); }
     catch (error) { conflict = error; return undefined; }
   }, {applyLocally: false});
   if (conflict) throw conflict;
   if (!result.committed || !result.snapshot.exists()) throw new Error('Unable to join match: match does not exist.');
-  watch(requestedId);
+  watch(code);
 });
 $('match-copy').onclick = async () => {
   try { await navigator.clipboard.writeText($('match-link').value); message('Match link copied.'); }
@@ -264,7 +281,7 @@ async function initialize() {
     uid = user.uid;
     sdk.onValue(sdk.ref(db, '.info/connected'), snapshot => {
       connected = snapshot.val() === true; controls(); renderMatch();
-      message(connected ? 'Connected. Create a match or join with your shared link.' : 'Offline — showing last received match. Changes are disabled until reconnection.');
+      message(connected ? 'Connected. Create a match or paste an invite link to join.' : 'Offline — showing last received match. Changes are disabled until reconnection.');
     });
     if (validId(requestedId)) watch(requestedId);
     else if (requestedId) message('Invalid match link. Create a new match.');

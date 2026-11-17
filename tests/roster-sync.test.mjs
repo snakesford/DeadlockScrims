@@ -34,6 +34,13 @@ test('multiplayer sync works with the roster script in a separate scope', () => 
   assert.equal(vm.runInContext('typeof setSharedRoster',context),'undefined');
   const multiplayer=readFileSync(new URL('multiplayer.js',root),'utf8').replace(/^import .*;\n/,'').replace(/initialize\(\);\s*$/,'');
   vm.runInContext(multiplayer,context);
+  for (const value of ['', 'not a link', 'https://example.test/?match=../bad', 'javascript:alert(1)']) {
+    element('#match-invite').value=value;
+    assert.equal(vm.runInContext('enteredMatchId()',context),null);
+  }
+  element('#match-invite').value=' https://example.test/?match=ABCDEFGHJKLMNPQRST234#match ';
+  assert.equal(vm.runInContext('enteredMatchId()',context),'ABCDEFGHJKLMNPQRST234');
+  element('#match-invite').value='';
   // Rendering before authentication must also work.
   vm.runInContext('renderMatch()',context);
   assert.equal(element('#total').textContent,1);
